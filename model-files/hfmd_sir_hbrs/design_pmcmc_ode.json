@@ -1,0 +1,13 @@
+{
+  "name": "pmcmc_ode",
+  "description": "pmcmc ode",
+  "id": "replicate",
+  "H": 5,
+  "seed": "it will converge",
+  "cmd": [
+    {
+      "pipe": "-u 0.01",
+      "algorithm": "pmcmc ode -J 1 -M 1000000 --full --acc --quiet"
+    }
+  ]
+}

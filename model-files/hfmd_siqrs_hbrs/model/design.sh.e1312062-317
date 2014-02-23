@@ -1,0 +1,77 @@
+[93mWARNING[0m: sanitized e:all:min 0 (guess) -> 0.001 (min)
+[93mWARNING[0m: sanitized IS:all:min 2.9301231362475573 (guess) -> 3 (min)
+[93mWARNING[0m: sanitized SI:all:min 2.975611057638338 (guess) -> 3 (min)
+[94mINFO[0m: unsticked IS:all (3->3.06)
+[94mINFO[0m: unsticked e:all (0.3->0.29701)
+[94mINFO[0m: unsticked sigma:all (0.1->0.10880000000000001)
+[94mINFO[0m: unsticked IS:all (3->3.06)
+[93mWARNING[0m: sum of the state variable in proportion equals 1.0000002300505781, renormalizing
+[91mFAIL[0m: SS Japan__all cannot be normalized (7.99985 -> 8.004214905312134) without breaking the transformation or the prior imposing values in [0.05, 8].
+[91mcould not parse theta.json
+error: on line 1: '[' or '{' expected near end of file
+[0m
+[93mWARNING[0m: sum of the state variable in proportion equals 1.0000002300505781, renormalizing
+[91mFAIL[0m: SS Japan__all cannot be normalized (7.99985 -> 8.004214905312134) without breaking the transformation or the prior imposing values in [0.05, 8].
+[91mcould not parse theta.json
+error: on line 1: '[' or '{' expected near end of file
+[0m
+[93mWARNING[0m: sum of the state variable in proportion equals 1.0000002300505781, renormalizing
+[91mFAIL[0m: SS Japan__all cannot be normalized (7.99985 -> 8.004214905312134) without breaking the transformation or the prior imposing values in [0.05, 8].
+[91mcould not parse theta.json
+error: on line 1: '[' or '{' expected near end of file
+[0m
+[93mWARNING[0m: sum of the state variable in proportion equals 1.0000002300505781, renormalizing
+[91mFAIL[0m: SS Japan__all cannot be normalized (7.99985 -> 8.004214905312134) without breaking the transformation or the prior imposing values in [0.05, 8].
+[91mcould not parse theta.json
+error: on line 1: '[' or '{' expected near end of file
+[0m
+[93mWARNING[0m: sum of the state variable in proportion equals 1.0000002300505781, renormalizing
+[91mFAIL[0m: SS Japan__all cannot be normalized (7.99985 -> 8.004214905312134) without breaking the transformation or the prior imposing values in [0.05, 8].
+[91mcould not parse theta.json
+error: on line 1: '[' or '{' expected near end of file
+[0m
+[93mWARNING[0m: sum of the state variable in proportion equals 1.0000002300505781, renormalizing
+[91mFAIL[0m: SS Japan__all cannot be normalized (7.99985 -> 8.004214905312134) without breaking the transformation or the prior imposing values in [0.05, 8].
+[91mcould not parse theta.json
+error: on line 1: '[' or '{' expected near end of file
+[0m
+[93mWARNING[0m: sum of the state variable in proportion equals 1.0000002300505781, renormalizing
+[91mFAIL[0m: SS Japan__all cannot be normalized (7.99985 -> 8.004214905312134) without breaking the transformation or the prior imposing values in [0.05, 8].
+[91mcould not parse theta.json
+error: on line 1: '[' or '{' expected near end of file
+[0m
+[93mWARNING[0m: sum of the state variable in proportion equals 1.0000002300505781, renormalizing
+[91mFAIL[0m: SS Japan__all cannot be normalized (7.99985 -> 8.004214905312134) without breaking the transformation or the prior imposing values in [0.05, 8].
+[91mcould not parse theta.json
+error: on line 1: '[' or '{' expected near end of file
+[0m
+[93mWARNING[0m: sum of the state variable in proportion equals 1.0000002300505781, renormalizing
+[91mFAIL[0m: SS Japan__all cannot be normalized (7.99985 -> 8.004214905312134) without breaking the transformation or the prior imposing values in [0.05, 8].
+[91mcould not parse theta.json
+error: on line 1: '[' or '{' expected near end of file
+[0m
+[93mWARNING[0m: sum of the state variable in proportion equals 1.0000002300505781, renormalizing
+[91mFAIL[0m: SS Japan__all cannot be normalized (7.99985 -> 8.004214905312134) without breaking the transformation or the prior imposing values in [0.05, 8].
+[91mcould not parse theta.json
+error: on line 1: '[' or '{' expected near end of file
+[0m
+[93mWARNING[0m: sum of the state variable in proportion equals 1.0000002300505781, renormalizing
+[91mFAIL[0m: SS Japan__all cannot be normalized (7.99985 -> 8.004214905312134) without breaking the transformation or the prior imposing values in [0.05, 8].
+[91mcould not parse theta.json
+error: on line 1: '[' or '{' expected near end of file
+[0m
+[93mWARNING[0m: sum of the state variable in proportion equals 1.0000002300505781, renormalizing
+[91mFAIL[0m: SS Japan__all cannot be normalized (7.99985 -> 8.004214905312134) without breaking the transformation or the prior imposing values in [0.05, 8].
+[91mcould not parse theta.json
+error: on line 1: '[' or '{' expected near end of file
+[0m
+[93mWARNING[0m: sum of the state variable in proportion equals 1.0000002300505781, renormalizing
+[91mFAIL[0m: SS Japan__all cannot be normalized (7.99985 -> 8.004214905312134) without breaking the transformation or the prior imposing values in [0.05, 8].
+[91mcould not parse theta.json
+error: on line 1: '[' or '{' expected near end of file
+[0m
+[93mWARNING[0m: sum of the state variable in proportion equals 1.0000002300505781, renormalizing
+[91mFAIL[0m: SS Japan__all cannot be normalized (7.99985 -> 8.004214905312134) without breaking the transformation or the prior imposing values in [0.05, 8].
+[91mcould not parse theta.json
+error: on line 1: '[' or '{' expected near end of file
+[0m

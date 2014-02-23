@@ -1,0 +1,168 @@
+{
+  "name": "SIQRI_HBRS_B_V HFMD Japan",
+  "description": "...",
+  "type": "theta",
+  "parameter": {
+    "SS": {
+      "min": 0,
+      "guess": 0.7,
+      "max": 1,
+      "sd_transf": 0.2
+    },
+    "IS": {
+      "min": 0,
+      "guess": 0.005,
+      "max": 0.01,
+      "sd_transf": 0.2
+    },
+    "SI": {
+      "min": 0,
+      "guess": 0.005,
+      "max": 0.01,
+      "sd_transf": 0.2
+    },
+    "RS": {
+      "min": 0,
+      "guess": 0.01,
+      "max": 1,
+      "sd_transf": 0.2
+    },
+    "SR": {
+      "min": 0,
+      "guess": 0.01,
+      "max": 1,
+      "sd_transf": 0.2
+    },
+    "IR": {
+      "min": 0,
+      "guess": 0,
+      "max": 1,
+      "sd_transf": 0
+    },
+    "RI": {
+      "min": 0,
+      "guess": 0,
+      "max": 1,
+      "sd_transf": 0
+    },
+    "SQ": {
+      "min": 0,
+      "guess": 0,
+      "max": 1,
+      "sd_transf": 0
+    },
+    "QS": {
+      "min": 0,
+      "guess": 0,
+      "max": 1,
+      "sd_transf": 0
+    },
+    "QR": {
+      "min": 0,
+      "guess": 0,
+      "max": 1,
+      "sd_transf": 0
+    },
+    "RQ": {
+      "min": 0,
+      "guess": 0,
+      "max": 1,
+      "sd_transf": 0
+    },
+    "r0_1": {
+      "min": 2,
+      "guess": 16,
+      "max": 30,
+      "sd_transf": 0.04,
+      "prior": "normal"
+    },
+    "r0_2": {
+      "min": 2,
+      "guess": 16,
+      "max": 30,
+      "sd_transf": 0.04,
+      "prior": "normal"
+    },
+    "v": {
+      "min": 1,
+      "guess": 4,
+      "max": 7,
+      "sd_transf": 0.04,
+      "unit": "D",
+      "type": "rate_as_duration",
+      "prior": "normal"
+    },
+    "e": {
+      "min": 0.001,
+      "guess": 0.1,
+      "max": 0.3,
+      "sd_transf": 0.2,
+      "transformation": "logit"
+    },
+    "d": {
+      "min": 0.6,
+      "guess": 0.8,
+      "max": 0.99,
+      "sd_transf": 0.04
+    },
+    "sigma": {
+      "min": 0.5,
+      "guess": 0.6,
+      "max": 0.725,
+      "sd_transf": 0.2,
+      "transformation": "logit",
+      "prior": "normal"
+    },
+    "sto": {
+      "min": 0,
+      "guess": 0.05,
+      "max": 0.8,
+      "sd_transf": 0.02
+    },
+    "iota_1": {
+      "min": -3.5,
+      "guess": 0,
+      "max": 4,
+      "sd_transf": 0.04,
+      "transformation": "scale_pow10_bounded"
+    },
+    "iota_2": {
+      "min": -3.5,
+      "guess": 0,
+      "max": 4,
+      "sd_transf": 0.04,
+      "transformation": "scale_pow10_bounded"
+    },
+    "q": {
+      "min": 0.05,
+      "guess": 6,
+      "max": 12,
+      "sd_transf": 0.04,
+      "unit": "M",
+      "type": "rate_as_duration"
+    },
+    "z": {
+      "min": 0,
+      "guess": 0.05,
+      "max": 0.95,
+      "sd_transf": 0.2,
+      "transformation": "logit"
+    },
+    "p": {
+      "min": 0,
+      "guess": 0.5,
+      "max": 1,
+      "sd_transf": 0,
+      "transformation": "logit"
+    },
+    "rep": {
+      "min": 0.05,
+      "guess": 0.175,
+      "max": 0.3,
+      "sd_transf": 0.2,
+      "transformation": "logit",
+      "partition_id": "variable_time_series",
+      "prior": "normal"
+    }
+  }
+}

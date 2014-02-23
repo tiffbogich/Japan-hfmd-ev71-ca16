@@ -1,0 +1,4 @@
+[93mWARNING[0m: sanitized e:all:min 0 (guess) -> 0.001 (min)
+[93mWARNING[0m: sum of the state variable in proportion equals 1.0000007155764015, renormalizing
+[94mINFO[0m: unsticked e:all (0.3->0.29701)
+[94mINFO[0m: unsticked SI:all (9->8.94)

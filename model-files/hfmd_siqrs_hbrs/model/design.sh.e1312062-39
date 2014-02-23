@@ -1,0 +1,6 @@
+[93mWARNING[0m: sanitized e:all:min 0 (guess) -> 0.001 (min)
+[93mWARNING[0m: sanitized SI:all:min 2.5480016445890104 (guess) -> 3 (min)
+[94mINFO[0m: unsticked SI:all (3->3.06)
+[94mINFO[0m: unsticked SI:all (3->3.06)
+[94mINFO[0m: unsticked sigma:all (0.1->0.10880000000000001)
+[94mINFO[0m: unsticked SI:all (3->3.06)

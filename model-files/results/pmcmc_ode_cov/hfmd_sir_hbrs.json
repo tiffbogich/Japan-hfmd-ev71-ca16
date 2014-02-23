@@ -1,0 +1,848 @@
+{
+  "name": "SIR_HBRS HFMD Japan",
+  "description": "...",
+  "type": "theta",
+  "parameter": {
+    "SS": {
+      "transformation": "logit",
+      "partition_id": "identical_population",
+      "group": {
+        "all": {
+          "min": {
+            "value": 0
+          },
+          "guess": {
+            "value": 0.221516
+          },
+          "max": {
+            "value": 0.95
+          },
+          "sd_transf": {
+            "value": 0.2
+          },
+          "prior": {
+            "value": "uniform"
+          }
+        }
+      }
+    },
+    "IS": {
+      "transformation": "logit",
+      "partition_id": "identical_population",
+      "group": {
+        "all": {
+          "min": {
+            "value": 0
+          },
+          "guess": {
+            "value": 0.0000117211
+          },
+          "max": {
+            "value": 0.01
+          },
+          "sd_transf": {
+            "value": 0.2
+          },
+          "prior": {
+            "value": "uniform"
+          }
+        }
+      }
+    },
+    "SI": {
+      "transformation": "logit",
+      "partition_id": "identical_population",
+      "group": {
+        "all": {
+          "min": {
+            "value": 0
+          },
+          "guess": {
+            "value": 0.00000560894
+          },
+          "max": {
+            "value": 0.01
+          },
+          "sd_transf": {
+            "value": 0.2
+          },
+          "prior": {
+            "value": "uniform"
+          }
+        }
+      }
+    },
+    "RS": {
+      "transformation": "logit",
+      "partition_id": "identical_population",
+      "group": {
+        "all": {
+          "min": {
+            "value": 0
+          },
+          "guess": {
+            "value": 0.110257
+          },
+          "max": {
+            "value": 0.95
+          },
+          "sd_transf": {
+            "value": 0.2
+          },
+          "prior": {
+            "value": "uniform"
+          }
+        }
+      }
+    },
+    "SR": {
+      "transformation": "logit",
+      "partition_id": "identical_population",
+      "group": {
+        "all": {
+          "min": {
+            "value": 0
+          },
+          "guess": {
+            "value": 0.114749
+          },
+          "max": {
+            "value": 0.95
+          },
+          "sd_transf": {
+            "value": 0.2
+          },
+          "prior": {
+            "value": "uniform"
+          }
+        }
+      }
+    },
+    "IR": {
+      "transformation": "logit",
+      "partition_id": "identical_population",
+      "group": {
+        "all": {
+          "min": {
+            "value": 0
+          },
+          "guess": {
+            "value": 9.5e-18
+          },
+          "max": {
+            "value": 0.95
+          },
+          "sd_transf": {
+            "value": 0
+          },
+          "prior": {
+            "value": "uniform"
+          }
+        }
+      }
+    },
+    "RI": {
+      "transformation": "logit",
+      "partition_id": "identical_population",
+      "group": {
+        "all": {
+          "min": {
+            "value": 0
+          },
+          "guess": {
+            "value": 9.5e-18
+          },
+          "max": {
+            "value": 0.95
+          },
+          "sd_transf": {
+            "value": 0
+          },
+          "prior": {
+            "value": "uniform"
+          }
+        }
+      }
+    },
+    "r0_1": {
+      "transformation": "log",
+      "partition_id": "identical_population",
+      "group": {
+        "all": {
+          "min": {
+            "value": 2.05
+          },
+          "guess": {
+            "value": 3.02137
+          },
+          "max": {
+            "value": 2.78
+          },
+          "sd_transf": {
+            "value": 0.04
+          },
+          "prior": {
+            "value": "normal"
+          }
+        }
+      }
+    },
+    "r0_2": {
+      "transformation": "log",
+      "partition_id": "identical_population",
+      "group": {
+        "all": {
+          "min": {
+            "value": 2.05
+          },
+          "guess": {
+            "value": 3.03357
+          },
+          "max": {
+            "value": 2.78
+          },
+          "sd_transf": {
+            "value": 0.04
+          },
+          "prior": {
+            "value": "normal"
+          }
+        }
+      }
+    },
+    "v": {
+      "unit": "D",
+      "type": "rate_as_duration",
+      "transformation": "log",
+      "partition_id": "identical_population",
+      "group": {
+        "all": {
+          "min": {
+            "value": 2.15
+          },
+          "guess": {
+            "value": 1.4969
+          },
+          "max": {
+            "value": 2.81
+          },
+          "sd_transf": {
+            "value": 0.04
+          },
+          "prior": {
+            "value": "normal"
+          }
+        }
+      }
+    },
+    "e": {
+      "transformation": "logit",
+      "partition_id": "identical_population",
+      "group": {
+        "all": {
+          "min": {
+            "value": 0.001
+          },
+          "guess": {
+            "value": 0.0238656
+          },
+          "max": {
+            "value": 0.3
+          },
+          "sd_transf": {
+            "value": 0.2
+          },
+          "prior": {
+            "value": "uniform"
+          }
+        }
+      }
+    },
+    "d": {
+      "transformation": "log",
+      "partition_id": "identical_population",
+      "group": {
+        "all": {
+          "min": {
+            "value": 0.6
+          },
+          "guess": {
+            "value": 0.930278
+          },
+          "max": {
+            "value": 0.99
+          },
+          "sd_transf": {
+            "value": 0.04
+          },
+          "prior": {
+            "value": "uniform"
+          }
+        }
+      }
+    },
+    "sigma": {
+      "transformation": "logit",
+      "partition_id": "identical_population",
+      "group": {
+        "all": {
+          "min": {
+            "value": 0.1
+          },
+          "guess": {
+            "value": 0.973874
+          },
+          "max": {
+            "value": 0.98
+          },
+          "sd_transf": {
+            "value": 0.2
+          },
+          "prior": {
+            "value": "uniform"
+          }
+        }
+      }
+    },
+    "sto": {
+      "transformation": "log",
+      "partition_id": "identical_population",
+      "group": {
+        "all": {
+          "min": {
+            "value": 0
+          },
+          "guess": {
+            "value": 0.522962
+          },
+          "max": {
+            "value": 0.8
+          },
+          "sd_transf": {
+            "value": 0.02
+          },
+          "prior": {
+            "value": "uniform"
+          }
+        }
+      }
+    },
+    "iota_1": {
+      "transformation": "scale_pow10_bounded",
+      "partition_id": "identical_population",
+      "group": {
+        "all": {
+          "min": {
+            "value": -3.5
+          },
+          "guess": {
+            "value": -2.70648
+          },
+          "max": {
+            "value": 4
+          },
+          "sd_transf": {
+            "value": 0.04
+          },
+          "prior": {
+            "value": "uniform"
+          }
+        }
+      }
+    },
+    "iota_2": {
+      "transformation": "scale_pow10_bounded",
+      "partition_id": "identical_population",
+      "group": {
+        "all": {
+          "min": {
+            "value": -3.5
+          },
+          "guess": {
+            "value": -3.05265
+          },
+          "max": {
+            "value": 4
+          },
+          "sd_transf": {
+            "value": 0.04
+          },
+          "prior": {
+            "value": "uniform"
+          }
+        }
+      }
+    },
+    "rep": {
+      "transformation": "logit",
+      "partition_id": "variable_time_series",
+      "group": {
+        "EV71_JAP__IASR__inc": {
+          "min": {
+            "value": 0.05
+          },
+          "guess": {
+            "value": 0.185556
+          },
+          "max": {
+            "value": 0.3
+          },
+          "sd_transf": {
+            "value": 0.2
+          },
+          "prior": {
+            "value": "normal"
+          }
+        },
+        "CA16_JAP__IASR__inc": {
+          "min": {
+            "value": 0.05
+          },
+          "guess": {
+            "value": 0.224825
+          },
+          "max": {
+            "value": 0.3
+          },
+          "sd_transf": {
+            "value": 0.2
+          },
+          "prior": {
+            "value": "normal"
+          }
+        }
+      }
+    }
+  },
+  "partition": {
+    "variable_population": {
+      "group": [
+        {
+          "id": "Japan__all",
+          "population_id": [
+            "Japan__all"
+          ]
+        }
+      ]
+    },
+    "variable_time_series": {
+      "group": [
+        {
+          "id": "EV71_JAP__IASR__inc",
+          "time_series_id": [
+            "EV71_JAP__IASR__inc"
+          ]
+        },
+        {
+          "id": "CA16_JAP__IASR__inc",
+          "time_series_id": [
+            "CA16_JAP__IASR__inc"
+          ]
+        }
+      ]
+    },
+    "identical_population": {
+      "group": [
+        {
+          "id": "all",
+          "population_id": [
+            "Japan__all"
+          ]
+        }
+      ]
+    },
+    "identical_time_series": {
+      "group": [
+        {
+          "id": "all",
+          "time_series_id": [
+            "EV71_JAP__IASR__inc",
+            "CA16_JAP__IASR__inc"
+          ]
+        }
+      ]
+    }
+  },
+  "covariance": [
+    [
+      "SS:all",
+      "IS:all",
+      "SI:all",
+      "RS:all",
+      "SR:all",
+      "IR:all",
+      "RI:all",
+      "r0_1:all",
+      "r0_2:all",
+      "v:all",
+      "e:all",
+      "d:all",
+      "sigma:all",
+      "sto:all",
+      "iota_1:all",
+      "iota_2:all",
+      "rep:EV71_JAP__IASR__inc",
+      "rep:CA16_JAP__IASR__inc"
+    ],
+    [
+      0.00000329829,
+      0.00000194052,
+      -0.00000444927,
+      -7.60939e-7,
+      -0.00000320085,
+      0,
+      0,
+      -7.8255e-7,
+      -0.00000148331,
+      -4.3841e-7,
+      -5.55616e-7,
+      -7.82906e-7,
+      0.0000041079,
+      0,
+      -0.00000105426,
+      1.93061e-7,
+      0.00000556014,
+      0.0000032889
+    ],
+    [
+      0.00000194052,
+      0.0000037976,
+      -0.00000279058,
+      -2.34085e-7,
+      -0.00000185349,
+      0,
+      0,
+      -4.87441e-7,
+      -9.34609e-7,
+      -4.13259e-8,
+      -2.14452e-7,
+      -4.70352e-7,
+      0.00000239885,
+      0,
+      -6.07353e-7,
+      3.42107e-7,
+      0.00000325579,
+      0.00000226286
+    ],
+    [
+      -0.00000444927,
+      -0.00000279058,
+      0.0000105661,
+      3.3712e-7,
+      0.00000468724,
+      0,
+      0,
+      9.49267e-7,
+      0.00000221079,
+      0.00000100224,
+      9.57486e-7,
+      0.00000127849,
+      -0.00000546613,
+      0,
+      0.00000209927,
+      -7.75888e-7,
+      -0.00000997428,
+      -0.00000348846
+    ],
+    [
+      -7.60939e-7,
+      -2.34085e-7,
+      3.3712e-7,
+      0.00000113121,
+      8.27045e-7,
+      0,
+      0,
+      1.54041e-7,
+      8.07724e-8,
+      2.38232e-8,
+      -1.09097e-7,
+      1.62445e-7,
+      -0.0000010019,
+      0,
+      9.85996e-8,
+      6.37927e-8,
+      -9.46331e-7,
+      -6.35901e-7
+    ],
+    [
+      -0.00000320085,
+      -0.00000185349,
+      0.00000468724,
+      8.27045e-7,
+      0.00000382519,
+      0,
+      0,
+      5.41621e-7,
+      0.00000141386,
+      4.88264e-7,
+      7.65251e-7,
+      7.24085e-7,
+      -0.00000423088,
+      0,
+      0.00000109693,
+      -3.17053e-7,
+      -0.00000591402,
+      -0.00000341982
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      -7.8255e-7,
+      -4.87441e-7,
+      9.49267e-7,
+      1.54041e-7,
+      5.41621e-7,
+      0,
+      0,
+      2.52136e-7,
+      3.59594e-7,
+      8.51478e-8,
+      3.69568e-8,
+      1.97327e-7,
+      -8.97067e-7,
+      0,
+      2.26384e-7,
+      -6.04193e-9,
+      -0.00000116852,
+      -7.0292e-7
+    ],
+    [
+      -0.00000148331,
+      -9.34609e-7,
+      0.00000221079,
+      8.07724e-8,
+      0.00000141386,
+      0,
+      0,
+      3.59594e-7,
+      7.43927e-7,
+      2.21588e-7,
+      3.29639e-7,
+      3.59599e-7,
+      -0.0000018483,
+      0,
+      5.18122e-7,
+      -1.20217e-7,
+      -0.00000260556,
+      -0.00000151756
+    ],
+    [
+      -4.3841e-7,
+      -4.13259e-8,
+      0.00000100224,
+      2.38232e-8,
+      4.88264e-7,
+      0,
+      0,
+      8.51478e-8,
+      2.21588e-7,
+      2.92973e-7,
+      2.44116e-7,
+      2.12539e-7,
+      -5.6447e-7,
+      0,
+      2.19101e-7,
+      -8.64884e-8,
+      -0.00000105749,
+      -1.8449e-7
+    ],
+    [
+      -5.55616e-7,
+      -2.14452e-7,
+      9.57486e-7,
+      -1.09097e-7,
+      7.65251e-7,
+      0,
+      0,
+      3.69568e-8,
+      3.29639e-7,
+      2.44116e-7,
+      0.00000270822,
+      2.10633e-7,
+      -0.00000138723,
+      0,
+      4.1696e-7,
+      -3.35391e-7,
+      -9.42599e-7,
+      -0.00000141682
+    ],
+    [
+      -7.82906e-7,
+      -4.70352e-7,
+      0.00000127849,
+      1.62445e-7,
+      7.24085e-7,
+      0,
+      0,
+      1.97327e-7,
+      3.59599e-7,
+      2.12539e-7,
+      2.10633e-7,
+      3.16043e-7,
+      -9.69649e-7,
+      0,
+      3.29642e-7,
+      -1.10154e-7,
+      -0.00000154187,
+      -4.0907e-7
+    ],
+    [
+      0.0000041079,
+      0.00000239885,
+      -0.00000546613,
+      -0.0000010019,
+      -0.00000423088,
+      0,
+      0,
+      -8.97067e-7,
+      -0.0000018483,
+      -5.6447e-7,
+      -0.00000138723,
+      -9.69649e-7,
+      0.00000682013,
+      0,
+      -0.00000138737,
+      3.25596e-7,
+      0.0000072665,
+      0.00000518169
+    ],
+    [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ],
+    [
+      -0.00000105426,
+      -6.07353e-7,
+      0.00000209927,
+      9.85996e-8,
+      0.00000109693,
+      0,
+      0,
+      2.26384e-7,
+      5.18122e-7,
+      2.19101e-7,
+      4.1696e-7,
+      3.29642e-7,
+      -0.00000138737,
+      0,
+      5.29562e-7,
+      -1.83773e-7,
+      -0.00000234245,
+      -7.88619e-7
+    ],
+    [
+      1.93061e-7,
+      3.42107e-7,
+      -7.75888e-7,
+      6.37927e-8,
+      -3.17053e-7,
+      0,
+      0,
+      -6.04193e-9,
+      -1.20217e-7,
+      -8.64884e-8,
+      -3.35391e-7,
+      -1.10154e-7,
+      3.25596e-7,
+      0,
+      -1.83773e-7,
+      1.92478e-7,
+      6.5205e-7,
+      7.25524e-8
+    ],
+    [
+      0.00000556014,
+      0.00000325579,
+      -0.00000997428,
+      -9.46331e-7,
+      -0.00000591402,
+      0,
+      0,
+      -0.00000116852,
+      -0.00000260556,
+      -0.00000105749,
+      -9.42599e-7,
+      -0.00000154187,
+      0.0000072665,
+      0,
+      -0.00000234245,
+      6.5205e-7,
+      0.0000122393,
+      0.00000468916
+    ],
+    [
+      0.0000032889,
+      0.00000226286,
+      -0.00000348846,
+      -6.35901e-7,
+      -0.00000341982,
+      0,
+      0,
+      -7.0292e-7,
+      -0.00000151756,
+      -1.8449e-7,
+      -0.00000141682,
+      -4.0907e-7,
+      0.00000518169,
+      0,
+      -7.88619e-7,
+      7.25524e-8,
+      0.00000468916,
+      0.00000641225
+    ]
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "name": "siqr_simulation",
+  "description": "incidence at the recovery time",
+  "observed": [
+    {
+      "id": "Inc_EV",
+      "definition": [
+        {
+          "from": "IS",
+          "to": "QS"
+        },
+        {
+          "from": "IR",
+          "to": "QR"
+        }
+      ],
+      "time_series_id": [
+        "EV71_JAP__IASR__inc"
+      ],
+      "model_id": "common"
+    },
+    {
+      "id": "Vac_EV",
+      "definition": [
+        {
+          "from": "U",
+          "to": "RS"
+        }
+      ],
+      "time_series_id": [
+        "VAC_JAP__IASR__inc"
+      ],
+      "model_id": "common"
+    },
+    {
+      "id": "Inc_CA",
+      "definition": [
+        {
+          "from": "SI",
+          "to": "SQ"
+        },
+        {
+          "from": "RI",
+          "to": "RQ"
+        }
+      ],
+      "time_series_id": [
+        "CA16_JAP__IASR__inc"
+      ],
+      "model_id": "common"
+    }
+  ],
+  "parameter": [
+    {
+      "id": "rep",
+      "comment": "reporting rate"
+    }
+  ],
+  "model": {
+    "common": {
+      "distribution": "discretized_normal",
+      "mean": "x*prop*ptest*rep",
+      "var": "x*prop*ptest*rep*(1.0-rep)"
+    }
+  },
+  "type": "link"
+}

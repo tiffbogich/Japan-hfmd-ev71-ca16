@@ -1,0 +1,26 @@
+sigma [0.5,0.95]
+- 18.9% of CA16 patients cross neutralize against EV71
+- 11.1% of EV71 patients cross neutralize against CA16
+Lin et al 2012 J Immunoassy Immunochem (DOI: 10.1080/15321819.2011.559297)
+Study of 138 samples from 79 patients in China
+
+v [min: 1, guess: 3, max:7] days
+'incubation period' from 1 to 7 days 
+Goh et al 1982 Bulletin of the World Health Organization, 60 (6): %5-969 
+Study of 60 families with secondary cases in Singapore
+This is the primary 'evidence' for duration of infection/incubation period and is cited in several subsequent studies but never supported properly
+
+
+R0 [min:2,guess:14,max:30]
+min 7.55, max 75.65 where R0 = 1+lifeExpec/meanAgeInfect
+based on 7 different serology-based studies (2xsingapore, 2xluan, and 3xtaipei)
+
+
+e
+
+z
+
+rep [min: 0.05, guess: 0.125, 0.30]
+86.7% of cases tested positive for having had HFMD but never knew they did (subclinical/asymptomatic)
+out of 90 cases in a study in Shanghai (Zeng et al 2012 J Clin Virol ID#175)
+71% of EV71 infections were asymptomatic based on a serological study of 177 kids in Taiwan (Chang et al 2002 Peds)

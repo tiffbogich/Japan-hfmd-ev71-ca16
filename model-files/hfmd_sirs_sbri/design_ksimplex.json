@@ -1,0 +1,22 @@
+{
+  "name": "ksimplex",
+  "description": "chain 10 ksimplex",
+  "id": "replicate",
+  "H": 1,
+  "seed": "it will converge",
+  "cmd": [
+    {
+      "comment": "First simplex fixing starting value for sto_1 and sto_2",
+      "pipe": "-S sto:all:guess:0.05 -u 0.01",
+      "algorithm": "ksimplex -M 10000 --prior --no_dem_sto --quiet",
+      "overwrite": false
+    },
+    {
+      "comment": "We chain simplex",
+      "pipe": "-T -u 0.01",
+      "algorithm": "ksimplex -M 10000 --prior --no_dem_sto --quiet",
+      "repeat": 9,
+      "overwrite": false
+    }
+  ]
+}

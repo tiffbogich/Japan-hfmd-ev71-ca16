@@ -1,0 +1,20 @@
+[93mWARNING[0m: sanitized e:all:min 0 (guess) -> 0.001 (min)
+[93mWARNING[0m: sanitized IS:all:min 2.9794914430926385 (guess) -> 3 (min)
+[93mWARNING[0m: sanitized SI:all:min 2.980061676360211 (guess) -> 3 (min)
+[94mINFO[0m: unsticked IS:all (3->3.06)
+[94mINFO[0m: unsticked SI:all (3->3.06)
+[94mINFO[0m: unsticked IS:all (3->3.06)
+[94mINFO[0m: unsticked SI:all (3->3.06)
+[94mINFO[0m: unsticked sigma:all (0.98->0.9712)
+[94mINFO[0m: unsticked IS:all (3->3.06)
+[94mINFO[0m: unsticked SS:all (8->7.9205)
+[94mINFO[0m: unsticked IS:all (3->3.06)
+[93mWARNING[0m: sum of the state variable in proportion equals 1.0000006430184682, renormalizing
+[93mWARNING[0m: sum of the state variable in proportion equals 1.000000197987709, renormalizing
+[93mWARNING[0m: sum of the state variable in proportion equals 1.0000001858502532, renormalizing
+[93mWARNING[0m: sum of the state variable in proportion equals 1.0000000351227238, renormalizing
+[93mWARNING[0m: sum of the state variable in proportion equals 1.0000001183186604, renormalizing
+[91mFAIL[0m: SI Japan__all cannot be normalized (8.99567 -> 9.000034856787588) without breaking the transformation or the prior imposing values in [3, 9].
+[91mcould not parse theta.json
+error: on line 1: '[' or '{' expected near end of file
+[0m

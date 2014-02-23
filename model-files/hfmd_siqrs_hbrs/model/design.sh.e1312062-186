@@ -1,0 +1,9 @@
+[93mWARNING[0m: sanitized e:all:min 0 (guess) -> 0.001 (min)
+[93mWARNING[0m: sanitized IS:all:min 2.98197955439108 (guess) -> 3 (min)
+[94mINFO[0m: unsticked IS:all (3->3.06)
+[94mINFO[0m: unsticked iota_2:all (4->3.925)
+[94mINFO[0m: unsticked SI:all (3->3.06)
+[94mINFO[0m: unsticked e:all (0.001->0.0039900000000000005)
+[94mINFO[0m: unsticked SI:all (3->3.06)
+[94mINFO[0m: unsticked sigma:all (0.1->0.10880000000000001)
+[93mWARNING[0m: sum of the state variable in proportion equals 1.000000017844749, renormalizing

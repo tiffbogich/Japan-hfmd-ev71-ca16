@@ -1,0 +1,4 @@
+[93mWARNING[0m: sanitized e:all:min 0 (guess) -> 0.001 (min)
+=>> PBS: job killed: walltime 84614 exceeded limit 84600
+/var/spool/PBS/mom_priv/jobs/1312060-431.della-pbs.SC: line 100: 18045 Done                    plom pipe $path_theta -T ${path_read}trace_${h}.csv -u 0.01
+     18046 Terminated              | ./simplex -M 10000 --no_trace --prior --quiet -p $path_saved -i $h

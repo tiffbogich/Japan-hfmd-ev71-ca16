@@ -1,0 +1,1440 @@
+rm(list=ls())#
+#
+library(MASS)#
+library(Hmisc)
+setwd("~/Downloads/PHtyph_forR_89_01.csv")
+rm(list=ls())#
+#
+library(MASS)#
+library(Hmisc)#
+#setwd("/Users/tiffzoo/code/simforence/data/ev71")#
+#setwd("/Users/cjessicametcalf/Documents/Tiff/") #xxj#
+#setwd("/Users/Elizabeth/Desktop/Thesis Data/R typh")#
+setwd("~/Downloads/PHtyph_forR_89_01.csv")#
+wk<- read.csv("PHtyph_forR_89_01.csv")#
+#
+#week count#
+ws<-seq(1,length(wk$Year),1)#
+nbw<-length(ws)/2
+setwd("/Users/tbogich/Downloads/PHtyph_forR_89_01.csv")
+load("/Users/tbogich/Dropbox/Tiff Laptop Files/Courses and Methods/SISMID11/Module 6 Data/equine.RData")
+ls()
+summary(equine)
+load("/Users/tbogich/Dropbox/Tiff Laptop Files/Courses and Methods/SISMID11/Module 6 Data/data.RData")
+ls()
+summary(flu)
+summary(niamey)
+summary(plague)
+plot(flu)
+niamey[5,3]<-0  #replace a "NA"#
+niamey<-data.frame(biweek=rep(seq(1,16),3),site=c(rep(1,16),rep(2,16),rep(3,16)),#
+                   cases=c(niamey[,1],niamey[,2],niamey[,3])) #define "biweeks"#
+####################################################
+### chunk number 8: #
+####################################################
+#line 176 "SISMID11_session3.rnw"#
+plot(niamey$biweek,niamey$cases,type='p',col=niamey$site,xlab='Biweek',ylab='Cases')#
+lines(niamey$biweek[niamey$site==1],niamey$cases[niamey$site==1])#
+lines(niamey$biweek[niamey$site==2],niamey$cases[niamey$site==2],col=2)#
+lines(niamey$biweek[niamey$site==3],niamey$cases[niamey$site==3],col=3)
+some variables#
+a <- 10   #amino acid differences#
+beta <- 0.62#
+W <- uniroot(function(W) W*exp(W), lower=-1/exp(1), upper=1)$root   #constant for total epidemic size
+functions for p, q, d and R#
+p <- function(a) 1/(1+exp(-0.281*a-0.411))#
+q <- function(a) 1/(1+exp(-0.267*a-0.755))#
+d <- function(a) 0.164*a+2.841#
+R <- function(a, beta) beta*p(a)*q(a)*d(a)#
+epidemic.size <- function(data) tail(data$Z,1)-head(data$Z,1)#
+deterministic.epidemic.size <- function()
+some functions on possible events#
+transmission <- function(x, parms) parms$beta*x$X*x$Y/(x$X+x$W+x$Y+x$Z)#
+exp2inf <- function(x, parms) parms$q*x$W/parms$u#
+exp2rec <- function(x, parms) (1-parms$q)*x$W/parms$u#
+inf2rec <- function(x, parms) x$Y/parms$d#
+#
+#SEIR model with imperfect vaccination#
+Park.onestep <- function (x, parms) {  #function to calculate one step of stochastic SIR#
+  X <- x$X                            #local variable for susceptibles#
+  W <- x$W                            #local variable for exposed#
+  Y <- x$Y                            #local variable for infected#
+  Z <- x$Z                            #local variable for recovered#
+  total.rate <- transmission(x,parms)+exp2inf(x,parms)+exp2rec(x,parms)+inf2rec(x,parms)  #calculate ``total rate''#
+  tau <- rexp(n=1,rate=total.rate)                               #inter-event time#
+  new.x <- c(X,W,Y,Z) #initialize a local variable at previous state variable values#
+  U <- runif(1)       #uniform random deviate#
+  new.x<-c(X,W,Y-1,Z+1) #inf2rec as "default"#
+  if(U<=(transmission(x,parms)+exp2inf(x,parms)+exp2rec(x,parms))/total.rate) new.x<-c(X,W-1,Y,Z+1) #exp2rec#
+  if(U<=(transmission(x,parms)+exp2inf(x,parms))/total.rate) new.x<-c(X,W-1,Y+1,Z) #exp2inf#
+  if(U<=(transmission(x,parms))/total.rate) new.x<-c(X-1,W+1,Y,Z) #transmission#
+  out <- list(time=tau,X=new.x[1],W=new.x[2],Y=new.x[3],Z=new.x[4]) #store result#
+  }
+Park.model <- function (x, parms) {  #function to simulate stochastic SIR#
+  output <- array(dim=c(1,5))         #set up array to store results#
+  colnames(output) <- c("time","X","W","Y","Z") #name variables#
+  output[1,] <- as.numeric(x)                           #first record of output is initial condition#
+  while (x$W+x$Y>0) {                      #iterate for nstep steps#
+    x <- Park.onestep(x,parms)#
+    output <- rbind(output,as.numeric(x))#
+  }#
+  output                                    #return output#
+}
+Simulation#
+set.seed(38499583)          #set seed#
+#set.seed(10281979)#
+nsims <- 1000                 #number of simulations#
+N <- 1000                   #total population size#
+X0 <- round(p(a)*N-1,0)     #initial number susceptible#
+W0 <- 0                     #initial number exposed#
+Y0 <- 1                     #initial number infectious#
+Z0 <- N-X0-W0-Y0            #initial number recovered#
+#
+xstart <- list(time=0,X=X0,W=W0,Y=Y0,Z=Z0) #initial conditions#
+parms <- list(beta=beta,u=2.2,p=p(a), d=d(a), q=q(a)) #parameters#
+data <- vector(mode='list',length=nsims) #initialize list to store the output#
+for (k in 1:nsims) {                     #simulate nsims times#
+  data[[k]] <- as.data.frame(Park.model(xstart,parms))#
+  data[[k]]$cum.time <- cumsum(data[[k]]$time)#
+}
+max.time<-data[[1]]$cum.time[max(which(data[[1]]$Y>0))] #maximum time in first simulation#
+max.y<-1.8*max(data[[1]]$Y)       #find max infected in run 1 and increase by 80% for plot#
+plot(Y~cum.time,data=data[[1]],xlab='time',ylab='incidence',col=1,xlim=c(0,max.time),ylim=c(0,max.y),type='l')#
+for (k in 1:nsims) {              #add multiple epidemics to plot#
+  lines(Y~cum.time,data=data[[k]],col=k,type='l')#
+}
+out <- sapply(data, epidemic.size)#
+quant <- quantile(out,c(0.05,0.5, 0.95))
+quants <- data.frame(a=numeric(0),p05=numeric(0),p50=numeric(0),p95=numeric(0))#
+for(a in 0:10){#
+  X0 <- round(p(a)*N-1,0)     #initial number susceptible#
+  W0 <- 0                     #initial number exposed#
+  Y0 <- 1                     #initial number infectious#
+  Z0 <- N-X0-W0-Y0            #initial number recovered#
+  xstart <- list(time=0,X=X0,W=W0,Y=Y0,Z=Z0) #initial conditions#
+  parms <- list(beta=beta,u=2.2,p=p(a), d=d(a), q=q(a)) #parameters#
+  data <- vector(mode='list',length=nsims) #initialize list to store the output#
+  for (k in 1:nsims) {                     #simulate nsims times#
+    data[[k]] <- as.data.frame(Park.model(xstart,parms))#
+    data[[k]]$cum.time <- cumsum(data[[k]]$time)#
+  } #
+  out <- sapply(data, epidemic.size)#
+  quant <- quantile(out,c(0.05,0.5, 0.95))#
+  quants <- rbind(quants,c(a,quant))#
+}#
+#
+x11()#
+plot(quants$X0,quants$X19,type='b', col='red', xlab='Amino acid differences (a)', ylab='Outbreak size')#
+points(quants$X0,quants$X2,type='b', col='blue', xlab='Amino acid differences (a)', ylab='Outbreak size')
+data<-read.csv("~/Dropbox/typhoid/data/raw_data/US_typhoid.csv")
+head(data)
+data$date
+data<-read.csv("~/Dropbox/typhoid/data/raw_data/US_typhoid.csv")#
+#
+id<-names(data)[-1]#
+st<-rep("__stream1__inc",length(id))#
+names(data)[2:ncol(data)]<-do.call(paste, c(list(id,st),sep=""))#
+#
+write.csv(data,file="~/Dropbox/typhoid/data/data_full/data.csv",row.names=FALSE)
+change births to birth rate#
+birth<-read.csv("~/Dropbox/typhoid/data/raw_data/US_births.csv")#
+names(birth)[2:ncol(data)]<-do.call(paste, c(list(id,st),sep=""))#
+pop<-read.csv("~/Dropbox/typhoid/data/raw_data/US_popsize.csv")#
+names(pop)[2:ncol(data)]<-do.call(paste, c(list(id,st),sep=""))#
+#
+#write population to data file N.csv#
+write.csv(pop,file="~/Dropbox/typhoid/data/data_full/N.csv",row.names=FALSE)#
+#
+#calculate birth rate#
+mu_b<-birth[,2:ncol(birth)]/pop[,2:ncol(birth)]#
+#
+#replace births with birth rate#
+birth[,2:ncol(birth)]=mu_b#
+#
+write.csv(birth,file="~/Dropbox/typhoid/data/data_full/mu_b.csv",row.names=FALSE)#
+#
+#assume birth rate = death rate?#
+write.csv(birth, file="~/Dropbox/typhoid/data/data_full/mu_d.csv",row.names=FALSE)#
+#
+#reporting rate?#
+prop<-birth#
+prop[,2:ncol(prop)]=1#
+#
+write.csv(prop,file="~/Dropbox/typhoid/data/data_full/prop.csv",row.names=FALSE)#
+data<-read.csv("~/Dropbox/typhoid/data/data_full/data.csv")#
+N<-read.csv("~/Dropbox/typhoid/data/data_full/N.csv")#
+prop<-read.csv("~/Dropbox/typhoid/data/data_full/prop.csv")#
+mu_b<-read.csv("~/Dropbox/typhoid/data/data_full/mu_b.csv")#
+mu_d<-read.csv("~/Dropbox/typhoid/data/data_full/mu_d.csv")#
+#
+#NYC and Philly#
+subset.c<-c(12,16)#
+data.s<-data[,c(1,subset.c)]#
+N.s<-N[,c(1,subset.c)]#
+mu_b.s<-mu_b[,c(1,subset.c)]#
+mu_d.s<-mu_d[,c(1,subset.c)]#
+prop.s<-prop[,c(1,subset.c)]#
+write.csv(data.s,"~/Dropbox/typhoid/data/data.csv",row.names=FALSE)#
+write.csv(N.s,"~/Dropbox/typhoid/data/N.csv",row.names=FALSE)#
+write.csv(mu_b.s,"~/Dropbox/typhoid/data/mu_b.csv",row.names=FALSE)#
+write.csv(mu_d.s,"~/Dropbox/typhoid/data/mu_d.csv",row.names=FALSE)#
+write.csv(prop.s,"~/Dropbox/typhoid/data/prop.csv",row.names=FALSE)
+convert years to weeks for tau#
+guess=(1905-1888)*(365/52)#
+max=(1933-1888)*(365/52)#
+#
+id<-names(data)[-1]#
+size_t0<-as.numeric(N[1,2:ncol(N)])#
+comment<-paste(id,", all age classes",sep="")#
+label<-c("id", "size_t0","comment")#
+#
+population<-paste("{",label[1],": ",id[1],", ",label[2],": ",size_t0[1],", ",label[3],": ",comment[1],"}",sep="")#
+for(i in 2:length(id)){#
+temp<-c(id[i],size_t0[i],comment[i])#
+population=asJSvar(population,temp)#
+}
+library(RJSONIO)
+copy over typhoid data into data.csv#
+data<-read.csv("~/Dropbox/typhoid/data/raw_data/US_typhoid.csv")#
+#
+id<-names(data)[-1]#
+st<-rep("__stream1__inc",length(id))#
+names(data)[2:ncol(data)]<-do.call(paste, c(list(id,st),sep=""))#
+#
+write.csv(data,file="~/Dropbox/typhoid/data/data_full/data.csv",row.names=FALSE)#
+#
+#change births to birth rate#
+birth<-read.csv("~/Dropbox/typhoid/data/raw_data/US_births.csv")#
+names(birth)[2:ncol(data)]<-do.call(paste, c(list(id,st),sep=""))#
+pop<-read.csv("~/Dropbox/typhoid/data/raw_data/US_popsize.csv")#
+names(pop)[2:ncol(data)]<-do.call(paste, c(list(id,st),sep=""))#
+#
+#write population to data file N.csv#
+write.csv(pop,file="~/Dropbox/typhoid/data/data_full/N.csv",row.names=FALSE)#
+#
+#calculate birth rate#
+mu_b<-birth[,2:ncol(birth)]/pop[,2:ncol(birth)]#
+#
+#replace births with birth rate#
+birth[,2:ncol(birth)]=mu_b#
+#
+write.csv(birth,file="~/Dropbox/typhoid/data/data_full/mu_b.csv",row.names=FALSE)#
+#
+#assume birth rate = death rate?#
+write.csv(birth, file="~/Dropbox/typhoid/data/data_full/mu_d.csv",row.names=FALSE)#
+#
+#reporting rate?#
+prop<-birth#
+prop[,2:ncol(prop)]=1#
+#
+write.csv(prop,file="~/Dropbox/typhoid/data/data_full/prop.csv",row.names=FALSE)#
+data<-read.csv("~/Dropbox/typhoid/data/data_full/data.csv")#
+N<-read.csv("~/Dropbox/typhoid/data/data_full/N.csv")#
+prop<-read.csv("~/Dropbox/typhoid/data/data_full/prop.csv")#
+mu_b<-read.csv("~/Dropbox/typhoid/data/data_full/mu_b.csv")#
+mu_d<-read.csv("~/Dropbox/typhoid/data/data_full/mu_d.csv")#
+#
+#NYC and Philly#
+subset.c<-c(12,16)#
+data.s<-data[,c(1,subset.c)]#
+N.s<-N[,c(1,subset.c)]#
+mu_b.s<-mu_b[,c(1,subset.c)]#
+mu_d.s<-mu_d[,c(1,subset.c)]#
+prop.s<-prop[,c(1,subset.c)]#
+write.csv(data.s,"~/Dropbox/typhoid/data/data.csv",row.names=FALSE)#
+write.csv(N.s,"~/Dropbox/typhoid/data/N.csv",row.names=FALSE)#
+write.csv(mu_b.s,"~/Dropbox/typhoid/data/mu_b.csv",row.names=FALSE)#
+write.csv(mu_d.s,"~/Dropbox/typhoid/data/mu_d.csv",row.names=FALSE)#
+write.csv(prop.s,"~/Dropbox/typhoid/data/prop.csv",row.names=FALSE)#
+###convert years to weeks for tau#
+guess=(1905-1888)*(365/52)#
+max=(1933-1888)*(365/52)#
+#
+id<-names(data)[-1]#
+size_t0<-as.numeric(N[1,2:ncol(N)])#
+comment<-paste(id,", all age classes",sep="")#
+label<-c("id", "size_t0","comment")#
+#
+population<-paste("{",label[1],": ",id[1],", ",label[2],": ",size_t0[1],", ",label[3],": ",comment[1],"}",sep="")#
+for(i in 2:length(id)){#
+temp<-c(id[i],size_t0[i],comment[i])#
+population=asJSvar(population,temp)#
+}
+library(rjson)
+population<-paste("{",label[1],": ",id[1],", ",label[2],": ",size_t0[1],", ",label[3],": ",comment[1],"}",sep="")#
+for(i in 2:length(id)){#
+temp<-c(id[i],size_t0[i],comment[i])#
+population=asJSvars(population,temp)#
+}
+population<-paste("{",label[1],": ",id[1],", ",label[2],": ",size_t0[1],", ",label[3],": ",comment[1],"}",sep="")#
+for(i in 2:length(id)){#
+temp<-c(id[i],size_t0[i],comment[i])#
+population=asJSVars(population,temp)#
+}
+population
+library(RJSONIO)#
+#copy over typhoid data into data.csv#
+data<-read.csv("~/Dropbox/typhoid/data/raw_data/US_typhoid.csv")
+id<-names(data)[-1]#
+st<-rep("__stream1__inc",length(id))#
+names(data)[2:ncol(data)]<-do.call(paste, c(list(id,st),sep=""))
+names(data)
+id
+data<-read.csv("~/Dropbox/typhoid/data/raw_data/US_typhoid.csv")
+head(data)
+library(RJSONIO)#
+#copy over typhoid data into data.csv#
+data<-read.csv("~/Dropbox/typhoid/data/raw_data/US_typhoid.csv")
+id<-names(data)[-1]#
+st<-rep("__stream1__inc",length(id))#
+names(data)[2:ncol(data)]<-do.call(paste, c(list(id,st),sep=""))
+names(data)
+write.csv(data,file="~/Dropbox/typhoid/data/data_full/data.csv",row.names=FALSE)#
+#
+#change births to birth rate#
+birth<-read.csv("~/Dropbox/typhoid/data/raw_data/US_births.csv")#
+names(birth)[2:ncol(data)]<-do.call(paste, c(list(id,st),sep=""))#
+pop<-read.csv("~/Dropbox/typhoid/data/raw_data/US_popsize.csv")#
+names(pop)[2:ncol(data)]<-do.call(paste, c(list(id,st),sep=""))#
+#
+#write population to data file N.csv#
+write.csv(pop,file="~/Dropbox/typhoid/data/data_full/N.csv",row.names=FALSE)#
+#
+#calculate birth rate#
+mu_b<-birth[,2:ncol(birth)]/pop[,2:ncol(birth)]#
+#
+#replace births with birth rate#
+birth[,2:ncol(birth)]=mu_b#
+#
+write.csv(birth,file="~/Dropbox/typhoid/data/data_full/mu_b.csv",row.names=FALSE)#
+#
+#assume birth rate = death rate?#
+write.csv(birth, file="~/Dropbox/typhoid/data/data_full/mu_d.csv",row.names=FALSE)#
+#
+#reporting rate?#
+prop<-birth#
+prop[,2:ncol(prop)]=1#
+#
+write.csv(prop,file="~/Dropbox/typhoid/data/data_full/prop.csv",row.names=FALSE)#
+data<-read.csv("~/Dropbox/typhoid/data/data_full/data.csv")#
+N<-read.csv("~/Dropbox/typhoid/data/data_full/N.csv")#
+prop<-read.csv("~/Dropbox/typhoid/data/data_full/prop.csv")#
+mu_b<-read.csv("~/Dropbox/typhoid/data/data_full/mu_b.csv")#
+mu_d<-read.csv("~/Dropbox/typhoid/data/data_full/mu_d.csv")#
+#
+#NYC and Philly#
+subset.c<-c(12,16)#
+data.s<-data[,c(1,subset.c)]#
+N.s<-N[,c(1,subset.c)]#
+mu_b.s<-mu_b[,c(1,subset.c)]#
+mu_d.s<-mu_d[,c(1,subset.c)]#
+prop.s<-prop[,c(1,subset.c)]#
+write.csv(data.s,"~/Dropbox/typhoid/data/data.csv",row.names=FALSE)#
+write.csv(N.s,"~/Dropbox/typhoid/data/N.csv",row.names=FALSE)#
+write.csv(mu_b.s,"~/Dropbox/typhoid/data/mu_b.csv",row.names=FALSE)#
+write.csv(mu_d.s,"~/Dropbox/typhoid/data/mu_d.csv",row.names=FALSE)#
+write.csv(prop.s,"~/Dropbox/typhoid/data/prop.csv",row.names=FALSE)
+library(RJSONIO)#
+#copy over typhoid data into data.csv#
+data<-read.csv("~/Dropbox/typhoid/data/raw_data/US_typhoid.csv")#
+#
+id<-names(data)[-1]#
+st<-rep("__stream1__inc",length(id))#
+names(data)[2:ncol(data)]<-do.call(paste, c(list(id,st),sep=""))
+write.csv(data,file="~/Dropbox/typhoid/data/data_full/data.csv",row.names=FALSE)#
+#
+#change births to birth rate#
+birth<-read.csv("~/Dropbox/typhoid/data/raw_data/US_births.csv")#
+names(birth)[2:ncol(data)]<-do.call(paste, c(list(id,st),sep=""))#
+pop<-read.csv("~/Dropbox/typhoid/data/raw_data/US_popsize.csv")#
+names(pop)[2:ncol(data)]<-do.call(paste, c(list(id,st),sep=""))#
+#
+#write population to data file N.csv#
+write.csv(pop,file="~/Dropbox/typhoid/data/data_full/N.csv",row.names=FALSE)#
+#
+#calculate birth rate#
+mu_b<-birth[,2:ncol(birth)]/pop[,2:ncol(birth)]#
+#
+#replace births with birth rate#
+birth[,2:ncol(birth)]=mu_b#
+#
+write.csv(birth,file="~/Dropbox/typhoid/data/data_full/mu_b.csv",row.names=FALSE)#
+#
+#assume birth rate = death rate?#
+write.csv(birth, file="~/Dropbox/typhoid/data/data_full/mu_d.csv",row.names=FALSE)#
+#
+#reporting rate?#
+prop<-birth#
+prop[,2:ncol(prop)]=1#
+#
+write.csv(prop,file="~/Dropbox/typhoid/data/data_full/prop.csv",row.names=FALSE)#
+data<-read.csv("~/Dropbox/typhoid/data/data_full/data.csv")#
+N<-read.csv("~/Dropbox/typhoid/data/data_full/N.csv")#
+prop<-read.csv("~/Dropbox/typhoid/data/data_full/prop.csv")#
+mu_b<-read.csv("~/Dropbox/typhoid/data/data_full/mu_b.csv")#
+mu_d<-read.csv("~/Dropbox/typhoid/data/data_full/mu_d.csv")#
+#
+#NYC and Philly#
+subset.c<-c(12,16)#
+data.s<-data[,c(1,subset.c)]#
+N.s<-N[,c(1,subset.c)]#
+mu_b.s<-mu_b[,c(1,subset.c)]#
+mu_d.s<-mu_d[,c(1,subset.c)]#
+prop.s<-prop[,c(1,subset.c)]#
+write.csv(data.s,"~/Dropbox/typhoid/data/data.csv",row.names=FALSE)#
+write.csv(N.s,"~/Dropbox/typhoid/data/N.csv",row.names=FALSE)#
+write.csv(mu_b.s,"~/Dropbox/typhoid/data/mu_b.csv",row.names=FALSE)#
+write.csv(mu_d.s,"~/Dropbox/typhoid/data/mu_d.csv",row.names=FALSE)#
+write.csv(prop.s,"~/Dropbox/typhoid/data/prop.csv",row.names=FALSE)
+library(RJSONIO)#
+#copy over typhoid data into data.csv#
+data<-read.csv("~/Dropbox/typhoid/data/raw_data/US_typhoid_2.csv")#
+#
+id<-names(data)[-1]#
+st<-rep("__stream1__inc",length(id))#
+names(data)[2:ncol(data)]<-do.call(paste, c(list(id,st),sep=""))#
+#
+write.csv(data,file="~/Dropbox/typhoid/data/data_full/data.csv",row.names=FALSE)#
+#
+#change births to birth rate#
+birth<-read.csv("~/Dropbox/typhoid/data/raw_data/US_births.csv")#
+names(birth)[2:ncol(data)]<-do.call(paste, c(list(id,st),sep=""))#
+pop<-read.csv("~/Dropbox/typhoid/data/raw_data/US_popsize.csv")#
+names(pop)[2:ncol(data)]<-do.call(paste, c(list(id,st),sep=""))#
+#
+#write population to data file N.csv#
+write.csv(pop,file="~/Dropbox/typhoid/data/data_full/N.csv",row.names=FALSE)#
+#
+#calculate birth rate#
+mu_b<-birth[,2:ncol(birth)]/pop[,2:ncol(birth)]#
+#
+#replace births with birth rate#
+birth[,2:ncol(birth)]=mu_b#
+#
+write.csv(birth,file="~/Dropbox/typhoid/data/data_full/mu_b.csv",row.names=FALSE)#
+#
+#assume birth rate = death rate?#
+write.csv(birth, file="~/Dropbox/typhoid/data/data_full/mu_d.csv",row.names=FALSE)#
+#
+#reporting rate?#
+prop<-birth#
+prop[,2:ncol(prop)]=1#
+#
+write.csv(prop,file="~/Dropbox/typhoid/data/data_full/prop.csv",row.names=FALSE)#
+data<-read.csv("~/Dropbox/typhoid/data/data_full/data.csv")#
+N<-read.csv("~/Dropbox/typhoid/data/data_full/N.csv")#
+prop<-read.csv("~/Dropbox/typhoid/data/data_full/prop.csv")#
+mu_b<-read.csv("~/Dropbox/typhoid/data/data_full/mu_b.csv")#
+mu_d<-read.csv("~/Dropbox/typhoid/data/data_full/mu_d.csv")#
+#
+#NYC and Philly#
+subset.c<-c(12,16)#
+data.s<-data[,c(1,subset.c)]#
+N.s<-N[,c(1,subset.c)]#
+mu_b.s<-mu_b[,c(1,subset.c)]#
+mu_d.s<-mu_d[,c(1,subset.c)]#
+prop.s<-prop[,c(1,subset.c)]#
+write.csv(data.s,"~/Dropbox/typhoid/data/data.csv",row.names=FALSE)#
+write.csv(N.s,"~/Dropbox/typhoid/data/N.csv",row.names=FALSE)#
+write.csv(mu_b.s,"~/Dropbox/typhoid/data/mu_b.csv",row.names=FALSE)#
+write.csv(mu_d.s,"~/Dropbox/typhoid/data/mu_d.csv",row.names=FALSE)#
+write.csv(prop.s,"~/Dropbox/typhoid/data/prop.csv",row.names=FALSE)
+copy over typhoid data into data.csv#
+data<-read.csv("~/Dropbox/typhoid/data/raw_data/US_typhoid.csv")#
+#
+id<-names(data)[-1]#
+st<-rep("__stream1__inc",length(id))#
+names(data)[2:ncol(data)]<-do.call(paste, c(list(id,st),sep=""))#
+#
+write.csv(data,file="~/Dropbox/typhoid/data/data_full/data.csv",row.names=FALSE)#
+#
+#change births to birth rate#
+birth<-read.csv("~/Dropbox/typhoid/data/raw_data/US_births.csv")#
+names(birth)[2:ncol(data)]<-do.call(paste, c(list(id,st),sep=""))#
+pop<-read.csv("~/Dropbox/typhoid/data/raw_data/US_popsize.csv")#
+names(pop)[2:ncol(data)]<-do.call(paste, c(list(id,st),sep=""))#
+#
+#write population to data file N.csv#
+write.csv(pop,file="~/Dropbox/typhoid/data/data_full/N.csv",row.names=FALSE)#
+#
+#calculate birth rate#
+mu_b<-birth[,2:ncol(birth)]/pop[,2:ncol(birth)]#
+#
+#replace births with birth rate#
+birth[,2:ncol(birth)]=mu_b#
+#
+write.csv(birth,file="~/Dropbox/typhoid/data/data_full/mu_b.csv",row.names=FALSE)#
+#
+#assume birth rate = death rate?#
+write.csv(birth, file="~/Dropbox/typhoid/data/data_full/mu_d.csv",row.names=FALSE)#
+#
+#reporting rate?#
+prop<-birth#
+prop[,2:ncol(prop)]=1#
+#
+write.csv(prop,file="~/Dropbox/typhoid/data/data_full/prop.csv",row.names=FALSE)#
+data<-read.csv("~/Dropbox/typhoid/data/data_full/data.csv")#
+N<-read.csv("~/Dropbox/typhoid/data/data_full/N.csv")#
+prop<-read.csv("~/Dropbox/typhoid/data/data_full/prop.csv")#
+mu_b<-read.csv("~/Dropbox/typhoid/data/data_full/mu_b.csv")#
+mu_d<-read.csv("~/Dropbox/typhoid/data/data_full/mu_d.csv")#
+#
+#NYC and Philly#
+subset.c<-c(12,16)#
+data.s<-data[,c(1,subset.c)]#
+N.s<-N[,c(1,subset.c)]#
+mu_b.s<-mu_b[,c(1,subset.c)]#
+mu_d.s<-mu_d[,c(1,subset.c)]#
+prop.s<-prop[,c(1,subset.c)]#
+write.csv(data.s,"~/Dropbox/typhoid/data/data.csv",row.names=FALSE)#
+write.csv(N.s,"~/Dropbox/typhoid/data/N.csv",row.names=FALSE)#
+write.csv(mu_b.s,"~/Dropbox/typhoid/data/mu_b.csv",row.names=FALSE)#
+write.csv(mu_d.s,"~/Dropbox/typhoid/data/mu_d.csv",row.names=FALSE)#
+write.csv(prop.s,"~/Dropbox/typhoid/data/prop.csv",row.names=FALSE)
+library(coda)
+?gelman
+??gelman.diag
+jcv<-read.csv("~/plom.io/lib/pict/journal_covers/journal_data.csv")#
+#
+jlist<-list()#
+for(i in 1:nrow(jcv)){#
+	jlist[[i]]<-c(Publisher=as.character(jcv[i,3]),#
+	Journal=as.character(jcv[i,1]),#
+	IF=as.numeric(jcv[i,2]),#
+	Image=as.character(jcv[i,4]))#
+}#
+#
+write(toJSON(jlist),"~/plom.io/lib/pict/journal_covers/journal_data_list.JSON")#
+write(toJSON(jcv),"~/plom.io/lib/pict/journal_covers/journal_data.JSON")
+jcv<-read.csv("~/Dropbox/plom_wiley.io/lib/pict/journal_covers")#
+jlist<-list()#
+for(i in 1:nrow(jcv)){#
+	jlist[[i]]<-c(Publisher=as.character(jcv[i,3]),#
+	Journal=as.character(jcv[i,1]),#
+	IF=as.numeric(jcv[i,2]),#
+	Image=as.character(jcv[i,4]))#
+}#
+#
+write(toJSON(jlist),"~/plom.io/lib/pict/journal_covers/journal_data_list.JSON")#
+write(toJSON(jcv),"~/plom.io/lib/pict/journal_covers/journal_data.JSON")
+jcv<-read.csv("~/Dropbox/plom_wiley.io/lib/pict/journal_covers")
+jcv<-read.csv("~/Dropbox/plom_wiley.io/lib/pict/journal_covers/journal_data.csv")
+jlist<-list()#
+for(i in 1:nrow(jcv)){#
+	jlist[[i]]<-c(Publisher=as.character(jcv[i,3]),#
+	Journal=as.character(jcv[i,1]),#
+	IF=as.numeric(jcv[i,2]),#
+	Image=as.character(jcv[i,4]))#
+}
+write(toJSON(jlist),"~/Dropbox/plom_wiley.io/lib/pict/journal_covers/journal_data_list.JSON")
+require(RJSONIO)
+write(toJSON(jlist),"~/Dropbox/plom_wiley.io/lib/pict/journal_covers/journal_data_list.JSON")
+write(toJSON(jcv),"~/Dropbox/plom_wiley.io/lib/pict/journal_covers/journal_data.JSON")
+setwd("~/hfmd/hfmd_siqri_hbrs_b_v/model")#
+#
+system("test -d ../results/sim/ || mkdir -p ../results/sim/")#
+system("test -d ../results/sim_EV/ || mkdir -p ../results/sim_EV/")#
+system("test -d ../results/sim_CA/ || mkdir -p ../results/sim_CA/")#
+system("test -d ../results/sim_BOTH/ || mkdir -p ../results/sim_BOTH/")#
+system("test -d ../results/sim_EV/final/ || mkdir -p ../results/sim_EV/final/")#
+system("test -d ../results/sim_CA/final/ || mkdir -p ../results/sim_CA/final/")#
+system("test -d ../results/sim_BOTH/final/ || mkdir -p ../results/sim_BOTH/final/")#
+#
+system("fit theta -S p:all:guess:0.0,e:all:guess:0.0 | ./simul ode --traj -T 1000000 -o 780 -D 781 -i 0")#
+#
+vc<-seq(0,1,0.1)#
+#
+len=length(vc)#
+#lenv=length(vsig)#
+#
+#create 2 matrices to store sig vs pv#
+EV.0<-vector("numeric",len)#
+CA.0<-vector("numeric",len)#
+#
+#vsig_pv1<-array(NA,dim=c(len,lenv,2),dimnames=c(vc,vsig,c("EV","CA")))#
+sig_pv1<-array(NA,dim=c(len,3),dimnames=c(vc,c("EV","CA","VAC")))
+for(k in 1:len){#
+	j=k-1#
+	setwd("~/hfmd/hfmd_siqri_hbrs_b_v/model")#
+#
+	system(paste("fit theta -X -S e:all:guess:0.0,p:all:guess:",vc[k]," | ./simul ode --traj -o 781 -T 1000000 -D 781 -p ../results/sim_EV/ -i ",j,sep=""))#
+#
+	temp<-read.csv(paste("~/hfmd/hfmd_siqri_hbrs_b_v/results/sim_EV/X_",j,".csv",sep=""),header=TRUE)#
+	sig_pv1[k,1]<-mean(temp$obs_mean.EV71_JAP__IASR__inc)#
+	sig_pv1[k,2]<-mean(temp$obs_mean.CA16_JAP__IASR__inc)#
+	sig_pv1[k,3]<-mean(temp$obs_mean.VAC_JAP__IASR__inc)#
+	}
+plot(vc,sig_pv1[,1],type="l",ylim=c(0,5),ylab="Mean incidence",xlab="proportion vaccinated against EV71",col="red")#
+lines(vc,sig_pv1[,2],type="l",col="blue")
+plot(vc,sig_pv1[,1],type="l",ylab="Mean incidence",xlab="proportion vaccinated against EV71",col="red")
+setwd("~/hfmd/hfmd_siqri_hbrs_b_v/model")#
+#
+system("test -d ../results/sim/ || mkdir -p ../results/sim/")#
+system("test -d ../results/sim_EV/ || mkdir -p ../results/sim_EV/")#
+system("test -d ../results/sim_CA/ || mkdir -p ../results/sim_CA/")#
+system("test -d ../results/sim_BOTH/ || mkdir -p ../results/sim_BOTH/")#
+system("test -d ../results/sim_EV/final/ || mkdir -p ../results/sim_EV/final/")#
+system("test -d ../results/sim_CA/final/ || mkdir -p ../results/sim_CA/final/")#
+system("test -d ../results/sim_BOTH/final/ || mkdir -p ../results/sim_BOTH/final/")#
+#
+system("fit theta -S p:all:guess:0.0,e:all:guess:0.0 | ./simul ode --traj -T 1000000 -o 780 -D 781 -i 0")#
+#
+vc<-seq(0,1,0.1)#
+#
+len=length(vc)#
+#lenv=length(vsig)#
+#
+#create 2 matrices to store sig vs pv#
+EV.0<-vector("numeric",len)#
+CA.0<-vector("numeric",len)#
+#
+#vsig_pv1<-array(NA,dim=c(len,lenv,2),dimnames=c(vc,vsig,c("EV","CA")))#
+sig_pv1<-array(NA,dim=c(len,3),dimnames=c(vc,c("EV","CA","VAC")))#
+#
+for(k in 1:len){#
+	j=k-1#
+	setwd("~/hfmd/hfmd_siqri_hbrs_b_v/model")#
+#
+	system(paste("fit theta -X -S e:all:guess:0.0,p:all:guess:",vc[k]," | ./simul ode --traj -o 781 -T 1000000 -D 782 -p ../results/sim_EV/ -i ",j,sep=""))#
+#
+	temp<-read.csv(paste("~/hfmd/hfmd_siqri_hbrs_b_v/results/sim_EV/X_",j,".csv",sep=""),header=TRUE)#
+	sig_pv1[k,1]<-mean(temp$obs_mean.EV71_JAP__IASR__inc)#
+	sig_pv1[k,2]<-mean(temp$obs_mean.CA16_JAP__IASR__inc)#
+	sig_pv1[k,3]<-mean(temp$obs_mean.VAC_JAP__IASR__inc)#
+	}
+plot(vc,sig_pv1[,1],type="l",ylab="Mean incidence",xlab="proportion vaccinated against EV71",col="red")#
+lines(vc,sig_pv1[,2],type="l",col="blue")
+setwd("~/hfmd/hfmd_siqri_hbrs_b_v/model")#
+#
+system("test -d ../results/sim/ || mkdir -p ../results/sim/")#
+system("test -d ../results/sim_EV/ || mkdir -p ../results/sim_EV/")#
+system("test -d ../results/sim_CA/ || mkdir -p ../results/sim_CA/")#
+system("test -d ../results/sim_BOTH/ || mkdir -p ../results/sim_BOTH/")#
+system("test -d ../results/sim_EV/final/ || mkdir -p ../results/sim_EV/final/")#
+system("test -d ../results/sim_CA/final/ || mkdir -p ../results/sim_CA/final/")#
+system("test -d ../results/sim_BOTH/final/ || mkdir -p ../results/sim_BOTH/final/")#
+#
+system("fit theta -S p:all:guess:0.0,e:all:guess:0.0 | ./simul ode --traj -T 1000000 -o 780 -D 1781 -i 0")#
+#
+vc<-seq(0,1,0.1)#
+#
+len=length(vc)#
+#lenv=length(vsig)#
+#
+#create 2 matrices to store sig vs pv#
+EV.0<-vector("numeric",len)#
+CA.0<-vector("numeric",len)#
+#
+#vsig_pv1<-array(NA,dim=c(len,lenv,2),dimnames=c(vc,vsig,c("EV","CA")))#
+sig_pv1<-array(NA,dim=c(len,3),dimnames=c(vc,c("EV","CA","VAC")))#
+#
+for(k in 1:len){#
+	j=k-1#
+	setwd("~/hfmd/hfmd_siqri_hbrs_b_v/model")#
+#
+	system(paste("fit theta -X -S e:all:guess:0.0,p:all:guess:",vc[k]," | ./simul ode --traj -o 781 -T 1000000 -D 1782 -p ../results/sim_EV/ -i ",j,sep=""))#
+#
+	temp<-read.csv(paste("~/hfmd/hfmd_siqri_hbrs_b_v/results/sim_EV/X_",j,".csv",sep=""),header=TRUE)#
+	sig_pv1[k,1]<-mean(temp$obs_mean.EV71_JAP__IASR__inc)#
+	sig_pv1[k,2]<-mean(temp$obs_mean.CA16_JAP__IASR__inc)#
+	sig_pv1[k,3]<-mean(temp$obs_mean.VAC_JAP__IASR__inc)#
+	}
+plot(vc,sig_pv1[,1],type="l",ylab="Mean incidence",xlab="proportion vaccinated against EV71",col="red")#
+lines(vc,sig_pv1[,2],type="l",col="blue")
+plot(vc,sig_pv1[,2],type="l",col="blue")
+plot(vc,sig_pv1[,1],type="l",yli=c(0,7), ylab="Mean incidence",xlab="proportion vaccinated against EV71",col="red")#
+lines(vc,sig_pv1[,2],type="l",col="blue")
+pdf("../eq_vacc_plot_siqri_lowr0.pdf")#
+plot(vc,sig_pv1[,1],type="l",yli=c(0,7), ylab="Mean incidence",xlab="proportion vaccinated against EV71",col="red")#
+lines(vc,sig_pv1[,2],type="l",col="blue")#
+#
+dev.off()
+setwd("~/hfmd/hfmd_siqri_hbrs_b_v/model")#
+#
+system("test -d ../results/sim/ || mkdir -p ../results/sim/")#
+system("test -d ../results/sim_EV/ || mkdir -p ../results/sim_EV/")#
+system("test -d ../results/sim_CA/ || mkdir -p ../results/sim_CA/")#
+system("test -d ../results/sim_BOTH/ || mkdir -p ../results/sim_BOTH/")#
+system("test -d ../results/sim_EV/final/ || mkdir -p ../results/sim_EV/final/")#
+system("test -d ../results/sim_CA/final/ || mkdir -p ../results/sim_CA/final/")#
+system("test -d ../results/sim_BOTH/final/ || mkdir -p ../results/sim_BOTH/final/")#
+#
+system("fit theta -S p:all:guess:0.0,e:all:guess:0.0 | ./simul ode --traj -T 1000000 -o 780 -D 1781 -i 0")#
+#
+vc<-seq(0,1,0.1)#
+#
+len=length(vc)#
+#lenv=length(vsig)#
+#
+#create 2 matrices to store sig vs pv#
+EV.0<-vector("numeric",len)#
+CA.0<-vector("numeric",len)#
+#
+#vsig_pv1<-array(NA,dim=c(len,lenv,2),dimnames=c(vc,vsig,c("EV","CA")))#
+sig_pv1<-array(NA,dim=c(len,3),dimnames=c(vc,c("EV","CA","VAC")))#
+#
+for(k in 1:len){#
+	j=k-1#
+	setwd("~/hfmd/hfmd_siqri_hbrs_b_v/model")#
+#
+	system(paste("fit theta -X -S e:all:guess:0.0,p:all:guess:",vc[k]," | ./simul ode --traj -o 781 -T 1000000 -D 1782 -p ../results/sim_EV/ -i ",j,sep=""))#
+#
+	temp<-read.csv(paste("~/hfmd/hfmd_siqri_hbrs_b_v/results/sim_EV/X_",j,".csv",sep=""),header=TRUE)#
+	sig_pv1[k,1]<-mean(temp$obs_mean.EV71_JAP__IASR__inc)#
+	sig_pv1[k,2]<-mean(temp$obs_mean.CA16_JAP__IASR__inc)#
+	sig_pv1[k,3]<-mean(temp$obs_mean.VAC_JAP__IASR__inc)#
+	}
+plot(vc,sig_pv1[,1],type="l",yli=c(0,7), ylab="Mean incidence",xlab="proportion vaccinated against EV71",col="red")#
+lines(vc,sig_pv1[,2],type="l",col="blue")
+pdf("../eq_vacc_plot_siqri_highr0.pdf")#
+plot(vc,sig_pv1[,1],type="l",yli=c(0,7), ylab="Mean incidence",xlab="proportion vaccinated against EV71",col="red")#
+lines(vc,sig_pv1[,2],type="l",col="blue")#
+#
+dev.off()
+setwd("~/hfmd/hfmd_siqri_hbrs_b_v/model")#
+#
+system("test -d ../results/sim/ || mkdir -p ../results/sim/")#
+system("test -d ../results/sim_EV/ || mkdir -p ../results/sim_EV/")#
+system("test -d ../results/sim_CA/ || mkdir -p ../results/sim_CA/")#
+system("test -d ../results/sim_BOTH/ || mkdir -p ../results/sim_BOTH/")#
+system("test -d ../results/sim_EV/final/ || mkdir -p ../results/sim_EV/final/")#
+system("test -d ../results/sim_CA/final/ || mkdir -p ../results/sim_CA/final/")#
+system("test -d ../results/sim_BOTH/final/ || mkdir -p ../results/sim_BOTH/final/")#
+#
+system("fit theta -S p:all:guess:0.0,e:all:guess:0.0 | ./simul ode --traj -T 1000000 -o 780 -D 1781 -i 0")#
+#
+vc<-seq(0,1,0.1)#
+#
+len=length(vc)#
+#lenv=length(vsig)#
+#
+#create 2 matrices to store sig vs pv#
+EV.0<-vector("numeric",len)#
+CA.0<-vector("numeric",len)#
+#
+#vsig_pv1<-array(NA,dim=c(len,lenv,2),dimnames=c(vc,vsig,c("EV","CA")))#
+sig_pv1<-array(NA,dim=c(len,3),dimnames=c(vc,c("EV","CA","VAC")))#
+#
+for(k in 1:len){#
+	j=k-1#
+	setwd("~/hfmd/hfmd_siqri_hbrs_b_v/model")#
+#
+	system(paste("fit theta -X -S e:all:guess:0.0,p:all:guess:",vc[k]," | ./simul ode --traj -o 781 -T 1000000 -D 1782 -p ../results/sim_EV/ -i ",j,sep=""))#
+#
+	temp<-read.csv(paste("~/hfmd/hfmd_siqri_hbrs_b_v/results/sim_EV/X_",j,".csv",sep=""),header=TRUE)#
+	sig_pv1[k,1]<-mean(temp$obs_mean.EV71_JAP__IASR__inc)#
+	sig_pv1[k,2]<-mean(temp$obs_mean.CA16_JAP__IASR__inc)#
+	sig_pv1[k,3]<-mean(temp$obs_mean.VAC_JAP__IASR__inc)#
+	}
+plot(vc,sig_pv1[,1],type="l",yli=c(0,7), ylab="Mean incidence",xlab="proportion vaccinated against EV71",col="red")#
+lines(vc,sig_pv1[,2],type="l",col="blue")
+pdf("../eq_vacc_plot_siqri_lowr0.pdf")#
+plot(vc,sig_pv1[,1],type="l",yli=c(0,7), ylab="Mean incidence",xlab="proportion vaccinated against EV71",col="red")#
+lines(vc,sig_pv1[,2],type="l",col="blue")#
+dev.off()
+pdf("../eq_vacc_plot_siqri2lowr0.pdf")#
+plot(vc,vac,type="l",ylim=c(0,1),ylab="Relative proportion cases averted",xlab="proportion vaccinated against EV71",col="red", lwd=1.4, bty="n")#
+lines(x=c(0,1),y=c(0,1),col="red",lty=2,lwd=1.4)
+vac<-(sig_pv1[1,1]-sig_pv1[,1])/sig_pv1[1,1]#
+pdf("../eq_vacc_plot_siqri2lowr0.pdf")#
+plot(vc,vac,type="l",ylim=c(0,1),ylab="Relative proportion cases averted",xlab="proportion vaccinated against EV71",col="red", lwd=1.4, bty="n")#
+lines(x=c(0,1),y=c(0,1),col="red",lty=2,lwd=1.4)#
+#
+#lines(vc,sig_pv1[,3]/sig_pv1[1,1],type="l",col="red",lty=2,lwd=1.4)#
+dev.off()
+setwd("~/hfmd/hfmd_siqri_hbrs_b_v/model")#
+#
+system("test -d ../results/sim/ || mkdir -p ../results/sim/")#
+system("test -d ../results/sim_EV/ || mkdir -p ../results/sim_EV/")#
+system("test -d ../results/sim_CA/ || mkdir -p ../results/sim_CA/")#
+system("test -d ../results/sim_BOTH/ || mkdir -p ../results/sim_BOTH/")#
+system("test -d ../results/sim_EV/final/ || mkdir -p ../results/sim_EV/final/")#
+system("test -d ../results/sim_CA/final/ || mkdir -p ../results/sim_CA/final/")#
+system("test -d ../results/sim_BOTH/final/ || mkdir -p ../results/sim_BOTH/final/")#
+#
+system("fit theta -S p:all:guess:0.0,e:all:guess:0.0 | ./simul ode --traj -T 1000000 -o 780 -D 1781 -i 0")#
+#
+vc<-seq(0,1,0.01)#
+#
+len=length(vc)#
+#lenv=length(vsig)#
+#
+#create 2 matrices to store sig vs pv#
+EV.0<-vector("numeric",len)#
+CA.0<-vector("numeric",len)#
+#
+#vsig_pv1<-array(NA,dim=c(len,lenv,2),dimnames=c(vc,vsig,c("EV","CA")))#
+sig_pv1<-array(NA,dim=c(len,3),dimnames=c(vc,c("EV","CA","VAC")))#
+#
+for(k in 1:len){#
+	j=k-1#
+	setwd("~/hfmd/hfmd_siqri_hbrs_b_v/model")#
+#
+	system(paste("fit theta -X -S e:all:guess:0.0,p:all:guess:",vc[k]," | ./simul ode --traj -o 781 -T 1000000 -D 1782 -p ../results/sim_EV/ -i ",j,sep=""))#
+#
+	temp<-read.csv(paste("~/hfmd/hfmd_siqri_hbrs_b_v/results/sim_EV/X_",j,".csv",sep=""),header=TRUE)#
+	sig_pv1[k,1]<-mean(temp$obs_mean.EV71_JAP__IASR__inc)#
+	sig_pv1[k,2]<-mean(temp$obs_mean.CA16_JAP__IASR__inc)#
+	sig_pv1[k,3]<-mean(temp$obs_mean.VAC_JAP__IASR__inc)#
+	}
+plot(vc,sig_pv1[,1],type="l",yli=c(0,7), ylab="Mean incidence",xlab="proportion vaccinated against EV71",col="red")#
+lines(vc,sig_pv1[,2],type="l",col="blue")
+plot(vc,sig_pv1[,1],type="l",yli=c(0,7), ylab="Mean incidence",xlab="proportion vaccinated against EV71",col="red")#
+lines(vc,sig_pv1[,2],type="l",col="blue")
+plot(vc,vac,type="l",ylim=c(0,1),ylab="Relative proportion cases averted",xlab="proportion vaccinated against EV71",col="red", lwd=1.4, bty="n")#
+lines(x=c(0,1),y=c(0,1),col="red",lty=2,lwd=1.4)
+vac<-(sig_pv1[1,1]-sig_pv1[,1])/sig_pv1[1,1]
+plot(vc,vac,type="l",ylim=c(0,1),ylab="Relative proportion cases averted",xlab="proportion vaccinated against EV71",col="red", lwd=1.4, bty="n")
+lines(x=c(0,1),y=c(0,1),col="red",lty=2,lwd=1.4)
+len
+require(plom)#
+s<-get.settings()#
+layout(matrix(1:(10*11),10,11))#
+par(mar=c(0,0,0,0))#
+for(k in 1:len){#
+	j=k-1#
+	temp<-read.csv(paste("~/hfmd/hfmd_siqri_hbrs_b_v/results/sim_EV/X_",j,".csv",sep=""),header=TRUE)#
+	plot(temp$obs_mean.EV71_JAP__IASR__inc,type="l",xaxt="n",yaxt="n",xlab="",ylab="")#
+	#plot.X(s,res="../results/sim_EV",id=j,obs=FALSE,xaxt="n",yaxt="n",xlab="",ylab="")#
+}
+layout(matrix(1:(10*11),10,11))#
+par(mar=c(0,0,0,0))#
+for(k in 1:len){#
+	j=k-1#
+	temp<-read.csv(paste("~/hfmd/hfmd_siqri_hbrs_b_v/results/sim_EV/X_",j,".csv",sep=""),header=TRUE)#
+	plot(temp$obs_mean.EV71_JAP__IASR__inc,type="l",xaxt="n",yaxt="n",xlab="",ylab="")#
+	abline(h=mean(temp$obs_mean.EV71_JAP__IASR__inc))#
+	#plot.X(s,res="../results/sim_EV",id=j,obs=FALSE,xaxt="n",yaxt="n",xlab="",ylab="")#
+}
+j=0
+layout(matrix(1:(10*11),10,11))#
+par(mar=c(0,0,0,0))#
+for(k in 1:len){#
+	j=k-1#
+	temp<-read.csv(paste("~/hfmd/hfmd_siqri_hbrs_b_v/results/sim_EV/X_",j,".csv",sep=""),header=TRUE)#
+	plot(temp$obs_mean.EV71_JAP__IASR__inc,type="l",xaxt="n",yaxt="n",ylim=c(0,sig_pv1[1,1]*10),xlab="",ylab="")#
+	abline(h=mean(temp$obs_mean.EV71_JAP__IASR__inc))#
+	#plot.X(s,res="../results/sim_EV",id=j,obs=FALSE,xaxt="n",yaxt="n",xlab="",ylab="")#
+}
+for(k in 1:len){#
+	j=k-1#
+	temp<-read.csv(paste("~/hfmd/hfmd_siqri_hbrs_b_v/results/sim_EV/X_",j,".csv",sep=""),header=TRUE)#
+	plot(temp$obs_mean.EV71_JAP__IASR__inc,type="l",xaxt="n",yaxt="n",ylim=c(0,sig_pv1[1,1]*5),xlab="",ylab="")#
+	abline(h=mean(temp$obs_mean.EV71_JAP__IASR__inc))#
+	#plot.X(s,res="../results/sim_EV",id=j,obs=FALSE,xaxt="n",yaxt="n",xlab="",ylab="")#
+}
+layout(matrix(1:(10*11),10,11))#
+par(mar=c(0,0,0,0))#
+for(k in 1:len){#
+	j=k-1#
+	temp<-read.csv(paste("~/hfmd/hfmd_siqri_hbrs_b_v/results/sim_EV/X_",j,".csv",sep=""),header=TRUE)#
+	plot(temp$obs_mean.EV71_JAP__IASR__inc,type="l",xaxt="n",yaxt="n",ylim=c(0,sig_pv1[1,1]*5),xlab="",ylab="")#
+	abline(h=mean(temp$obs_mean.EV71_JAP__IASR__inc))#
+	#plot.X(s,res="../results/sim_EV",id=j,obs=FALSE,xaxt="n",yaxt="n",xlab="",ylab="")#
+}
+layout(matrix(1:(10*11),10,11,byrow=TRUE))#
+par(mar=c(0,0,0,0))#
+for(k in 1:len){#
+	j=k-1#
+	temp<-read.csv(paste("~/hfmd/hfmd_siqri_hbrs_b_v/results/sim_EV/X_",j,".csv",sep=""),header=TRUE)#
+	plot(temp$obs_mean.EV71_JAP__IASR__inc,type="l",xaxt="n",yaxt="n",ylim=c(0,sig_pv1[1,1]*5),xlab="",ylab="")#
+	abline(h=mean(temp$obs_mean.EV71_JAP__IASR__inc))#
+	#plot.X(s,res="../results/sim_EV",id=j,obs=FALSE,xaxt="n",yaxt="n",xlab="",ylab="")#
+}
+layout(matrix(1:(10*11),10,11,byrow=TRUE))#
+par(mar=c(0,0,0,0))#
+for(k in 1:len){#
+	j=k-1#
+	temp<-read.csv(paste("~/hfmd/hfmd_siqri_hbrs_b_v/results/sim_EV/X_",j,".csv",sep=""),header=TRUE)#
+	plot(temp$obs_mean.EV71_JAP__IASR__inc,type="l",xaxt="n",yaxt="n",ylim=c(0,sig_pv1[1,1]*5),xlab="",ylab="")#
+	abline(h=mean(temp$obs_mean.EV71_JAP__IASR__inc))#
+	#plot.X(s,res="../results/sim_EV",id=j,obs=FALSE,xaxt="n",yaxt="n",xlab="",ylab="")#
+}
+vc<-seq(0,1,0.05)
+len=length(vc)
+len
+vc<-seq(0,1,0.05)#
+#
+len=length(vc)#
+#lenv=length(vsig)#
+#
+#create 2 matrices to store sig vs pv#
+EV.0<-vector("numeric",len)#
+CA.0<-vector("numeric",len)#
+#
+#vsig_pv1<-array(NA,dim=c(len,lenv,2),dimnames=c(vc,vsig,c("EV","CA")))#
+sig_pv1<-array(NA,dim=c(len,3),dimnames=c(vc,c("EV","CA","VAC")))#
+#
+for(k in 1:len){#
+	j=k-1#
+	setwd("~/hfmd/hfmd_siqri_hbrs_b_v/model")#
+#
+	system(paste("fit theta -S e:all:guess:0.0,p:all:guess:",vc[k]," | ./simul ode --traj -o 781 -T 1000000 -D 17820 -p ../results/sim_EV/ -i ",j,sep=""))#
+#
+	temp<-read.csv(paste("~/hfmd/hfmd_siqri_hbrs_b_v/results/sim_EV/X_",j,".csv",sep=""),header=TRUE)#
+	sig_pv1[k,1]<-mean(temp$obs_mean.EV71_JAP__IASR__inc)#
+	sig_pv1[k,2]<-mean(temp$obs_mean.CA16_JAP__IASR__inc)#
+	sig_pv1[k,3]<-mean(temp$obs_mean.VAC_JAP__IASR__inc)#
+	}
+layout(matrix(1:(4*6),4,6,byrow=TRUE))#
+par(mar=c(0,0,0,0))#
+for(k in 1:len){#
+	j=k-1#
+	temp<-read.csv(paste("~/hfmd/hfmd_siqri_hbrs_b_v/results/sim_EV/X_",j,".csv",sep=""),header=TRUE)#
+	plot(temp$obs_mean.EV71_JAP__IASR__inc,type="l",xaxt="n",yaxt="n",ylim=c(0,sig_pv1[1,1]*5),xlab="",ylab="")#
+	abline(h=mean(temp$obs_mean.EV71_JAP__IASR__inc))#
+	#plot.X(s,res="../results/sim_EV",id=j,obs=FALSE,xaxt="n",yaxt="n",xlab="",ylab="")#
+}
+plot(vc,sig_pv1[,1],type="l",yli=c(0,7), ylab="Mean incidence",xlab="proportion vaccinated against EV71",col="red")#
+lines(vc,sig_pv1[,2],type="l",col="blue")
+plot(vc,sig_pv1[,1],type="l",yli=c(0,7), ylab="Mean incidence",xlab="proportion vaccinated against EV71",col="red")#
+lines(vc,sig_pv1[,2],type="l",col="purple")
+plot(vc,sig_pv1[,1],type="l",yli=c(0,7), ylab="Mean incidence",xlab="proportion vaccinated against EV71",col="red")#
+lines(vc,sig_pv1[,2],type="l",col="purple")
+vac<-(sig_pv1[1,1]-sig_pv1[,1])/sig_pv1[1,1]
+plot(vc,vac,type="l",ylim=c(0,1),ylab="Relative proportion cases averted",xlab="proportion vaccinated against EV71",col="red", lwd=1.4, bty="n")#
+lines(x=c(0,1),y=c(0,1),col="red",lty=2,lwd=1.4)
+vac<-(sig_pv1[1,1]-sig_pv1[,1])/sig_pv1[1,1]#
+pdf("../eq_vacc_plot_siqri2lowr0.pdf")#
+plot(vc,vac,type="l",ylim=c(0,1),ylab="Relative proportion cases averted",xlab="proportion vaccinated against EV71",col="red", lwd=1.4, bty="n")#
+lines(x=c(0,1),y=c(0,1),col="red",lty=2,lwd=1.4)#
+#
+#lines(vc,sig_pv1[,3]/sig_pv1[1,1],type="l",col="red",lty=2,lwd=1.4)#
+dev.off()
+vac<-(sig_pv1[1,1]-sig_pv1[,1])/sig_pv1[1,1]#
+pdf("../eq_vacc_plot_siqri2lowr0.pdf")#
+plot(vc,vac,type="l",ylim=c(0,1),ylab="Relative proportion cases averted",xlab="proportion vaccinated against EV71",col="red", lwd=1.4, bty="n")#
+lines(x=c(0,1),y=c(0,1),col="red",lty=2,lwd=1.4)#
+#
+#lines(vc,sig_pv1[,3]/sig_pv1[1,1],type="l",col="red",lty=2,lwd=1.4)#
+dev.off()
+pdf("../eq_vacc_plot_siqri_lowr0.pdf")#
+plot(vc,sig_pv1[,1],type="l",yli=c(0,7), ylab="Mean incidence",xlab="proportion vaccinated against EV71",col="red")#
+lines(vc,sig_pv1[,2],type="l",col="purple")#
+dev.off()
+setwd("~/hfmd/hfmd_siqri_hbrs_b_v/model")#
+#
+system("test -d ../results/sim/ || mkdir -p ../results/sim/")#
+system("test -d ../results/sim_EV/ || mkdir -p ../results/sim_EV/")#
+system("test -d ../results/sim_CA/ || mkdir -p ../results/sim_CA/")#
+system("test -d ../results/sim_BOTH/ || mkdir -p ../results/sim_BOTH/")#
+system("test -d ../results/sim_EV/final/ || mkdir -p ../results/sim_EV/final/")#
+system("test -d ../results/sim_CA/final/ || mkdir -p ../results/sim_CA/final/")#
+system("test -d ../results/sim_BOTH/final/ || mkdir -p ../results/sim_BOTH/final/")#
+#
+system("fit theta -S p:all:guess:0.0,e:all:guess:0.0 | ./simul ode --traj -T 1000000 -o 780 -D 17810 -i 0")#
+#
+vc<-seq(0,1,0.05)#
+#
+len=length(vc)#
+#lenv=length(vsig)#
+#
+#create 2 matrices to store sig vs pv#
+EV.0<-vector("numeric",len)#
+CA.0<-vector("numeric",len)#
+#
+#vsig_pv1<-array(NA,dim=c(len,lenv,2),dimnames=c(vc,vsig,c("EV","CA")))#
+sig_pv1<-array(NA,dim=c(len,3),dimnames=c(vc,c("EV","CA","VAC")))#
+#
+for(k in 1:len){#
+	j=k-1#
+	setwd("~/hfmd/hfmd_siqri_hbrs_b_v/model")#
+#
+	system(paste("fit theta -S e:all:guess:0.0,p:all:guess:",vc[k]," | ./simul ode --traj -o 781 -T 1000000 -D 17820 -p ../results/sim_EV/ -i ",j,sep=""))#
+#
+	temp<-read.csv(paste("~/hfmd/hfmd_siqri_hbrs_b_v/results/sim_EV/X_",j,".csv",sep=""),header=TRUE)#
+	sig_pv1[k,1]<-mean(temp$obs_mean.EV71_JAP__IASR__inc)#
+	sig_pv1[k,2]<-mean(temp$obs_mean.CA16_JAP__IASR__inc)#
+	sig_pv1[k,3]<-mean(temp$obs_mean.VAC_JAP__IASR__inc)#
+	}
+pdf("../eq_vacc_plot_siqri_highr0.pdf")#
+plot(vc,sig_pv1[,1],type="l",yli=c(0,7), ylab="Mean incidence",xlab="proportion vaccinated against EV71",col="red")#
+lines(vc,sig_pv1[,2],type="l",col="purple")#
+dev.off()#
+vac<-(sig_pv1[1,1]-sig_pv1[,1])/sig_pv1[1,1]#
+pdf("../eq_vacc_plot_siqri2highr0.pdf")#
+plot(vc,vac,type="l",ylim=c(0,1),ylab="Relative proportion cases averted",xlab="proportion vaccinated against EV71",col="red", lwd=1.4, bty="n")#
+lines(x=c(0,1),y=c(0,1),col="red",lty=2,lwd=1.4)
+library(sas7bdat); library(Hmisc)#
+data<-read.sas7bdat("~/Dropbox/Tiff Laptop Files/RAPIDD/Projects/china cdc hfmd data/ccdc_data 2/1.SurveillanceData_2008-2012/1.1nationalweekly.sas7bdat")#
+demog<-read.csv("~/Library/Containers/com.apple.mail/Data/Library/Mail Downloads/popdata.csv")
+nat<-data[which(data$group==0),]#
+dnat<-demog[which(demog$province=="National"),]
+Ncount<-2898#
+five<-apply(cbind(nat$total, rep(Ncount*(5/4),nrow(nat))),1,min)#
+tot_tested<-nat$total_death+nat$total_serious+five#
+tot_tested_new<-apply(cbind(tot_tested, synd),1,min)#
+vir_conf<-nat$total_ev71+nat$total_cva16#
+synd<-nat$total#
+quartz(1)#
+plot((tot_tested_new)/synd,type="l",col="purple")#
+pt<-(tot_tested_new)/synd
+Ncount<-2898#
+synd<-nat$total#
+five<-apply(cbind(nat$total, rep(Ncount*(5/4),nrow(nat))),1,min)#
+tot_tested<-nat$total_death+nat$total_serious+five#
+tot_tested_new<-apply(cbind(tot_tested, synd),1,min)#
+vir_conf<-nat$total_ev71+nat$total_cva16
+quartz(1)#
+plot((tot_tested_new)/synd,type="l",col="purple")#
+pt<-(tot_tested_new)/synd
+quartz(2)#
+par(mfrow=c(4,2))#
+#plot(nat$total_serious,type="l",main="serious")#
+plot(nat$total,type="l")#
+plot(nat$total,type="l")#
+plot(nat$sd21,type="l",main="sevEV71")#
+plot(nat$sd11,type="l",main="miEV71")#
+plot(nat$sd22, type="l",main="sevCA16")#
+plot(nat$sd12, type="l",main="miCA16")#
+plot(nat$sd23,type="l",main="sevother")#
+plot(nat$sd13,type="l",main="miother")
+names(data)
+unique(group)
+unique(data$group)
+data_all<-read.sas7bdat("~/Dropbox/Tiff Laptop Files/RAPIDD/Projects/china cdc hfmd data/ccdc_data 2/1.SurveillanceData_2008-2012/1.2provweekly.sas7bdat")
+unique(data$group)
+unique(data_all$group)
+head(data_all)
+unique(data_all$group)
+setwd("~/hfmd/hfmd_siqri_hbrs_b_v/model")#
+#
+system("test -d ../results/sim/ || mkdir -p ../results/sim/")#
+system("test -d ../results/sim_EV/ || mkdir -p ../results/sim_EV/")#
+system("test -d ../results/sim_CA/ || mkdir -p ../results/sim_CA/")#
+system("test -d ../results/sim_BOTH/ || mkdir -p ../results/sim_BOTH/")#
+system("test -d ../results/sim_EV/final/ || mkdir -p ../results/sim_EV/final/")#
+system("test -d ../results/sim_CA/final/ || mkdir -p ../results/sim_CA/final/")#
+system("test -d ../results/sim_BOTH/final/ || mkdir -p ../results/sim_BOTH/final/")#
+#
+system("fit theta -S p:all:guess:0.0,e:all:guess:0.0 | ./simul ode --traj -T 1000000 -o 780 -D 17810 -i 0")#
+#
+vc<-seq(0,1,0.05)#
+#
+len=length(vc)#
+#lenv=length(vsig)#
+#
+#create 2 matrices to store sig vs pv#
+EV.0<-vector("numeric",len)#
+CA.0<-vector("numeric",len)#
+#
+#vsig_pv1<-array(NA,dim=c(len,lenv,2),dimnames=c(vc,vsig,c("EV","CA")))#
+sig_pv1<-array(NA,dim=c(len,3),dimnames=c(vc,c("EV","CA","VAC")))#
+#
+for(k in 1:len){#
+	j=k-1#
+	setwd("~/hfmd/hfmd_siqri_hbrs_b_v/model")#
+#
+	system(paste("fit theta -S e:all:guess:0.0,p:all:guess:",vc[k]," | ./simul ode --traj -o 781 -T 1000000 -D 17820 -p ../results/sim_EV/ -i ",j,sep=""))#
+#
+	temp<-read.csv(paste("~/hfmd/hfmd_siqri_hbrs_b_v/results/sim_EV/X_",j,".csv",sep=""),header=TRUE)#
+	sig_pv1[k,1]<-mean(temp$obs_mean.EV71_JAP__IASR__inc)#
+	sig_pv1[k,2]<-mean(temp$obs_mean.CA16_JAP__IASR__inc)#
+	sig_pv1[k,3]<-mean(temp$obs_mean.VAC_JAP__IASR__inc)#
+	}
+pdf("../eq_vacc_plot_siqri_highr0.pdf")#
+plot(vc,sig_pv1[,1],type="l",yli=c(0,7), ylab="Mean incidence",xlab="proportion vaccinated against EV71",col="red")#
+lines(vc,sig_pv1[,2],type="l",col="purple")#
+dev.off()#
+vac<-(sig_pv1[1,1]-sig_pv1[,1])/sig_pv1[1,1]#
+pdf("../eq_vacc_plot_siqri2highr0.pdf")#
+plot(vc,vac,type="l",ylim=c(0,1),ylab="Relative proportion cases averted",xlab="proportion vaccinated against EV71",col="red", lwd=1.4, bty="n")#
+lines(x=c(0,1),y=c(0,1),col="red",lty=2,lwd=1.4)#
+#
+#lines(vc,sig_pv1[,3]/sig_pv1[1,1],type="l",col="red",lty=2,lwd=1.4)#
+dev.off()
+setwd("~/hfmd/hfmd_siqri_hbrs_b_v/model")#
+#
+system("test -d ../results/sim/ || mkdir -p ../results/sim/")#
+system("test -d ../results/sim_EV/ || mkdir -p ../results/sim_EV/")#
+system("test -d ../results/sim_CA/ || mkdir -p ../results/sim_CA/")#
+system("test -d ../results/sim_BOTH/ || mkdir -p ../results/sim_BOTH/")#
+system("test -d ../results/sim_EV/final/ || mkdir -p ../results/sim_EV/final/")#
+system("test -d ../results/sim_CA/final/ || mkdir -p ../results/sim_CA/final/")#
+system("test -d ../results/sim_BOTH/final/ || mkdir -p ../results/sim_BOTH/final/")#
+#
+system("fit theta -S p:all:guess:0.0,e:all:guess:0.0 | ./simul ode --traj -T 1000000 -o 780 -D 17810 -i 0")#
+#
+vc<-seq(0,1,0.05)#
+#
+len=length(vc)#
+#lenv=length(vsig)#
+#
+#create 2 matrices to store sig vs pv#
+EV.0<-vector("numeric",len)#
+CA.0<-vector("numeric",len)#
+#
+#vsig_pv1<-array(NA,dim=c(len,lenv,2),dimnames=c(vc,vsig,c("EV","CA")))#
+sig_pv1<-array(NA,dim=c(len,3),dimnames=c(vc,c("EV","CA","VAC")))#
+#
+for(k in 1:len){#
+	j=k-1#
+	setwd("~/hfmd/hfmd_siqri_hbrs_b_v/model")#
+#
+	system(paste("fit theta -S e:all:guess:0.0,p:all:guess:",vc[k]," | ./simul ode --traj -o 781 -T 1000000 -D 17820 -p ../results/sim_EV/ -i ",j,sep=""))#
+#
+	temp<-read.csv(paste("~/hfmd/hfmd_siqri_hbrs_b_v/results/sim_EV/X_",j,".csv",sep=""),header=TRUE)#
+	sig_pv1[k,1]<-mean(temp$obs_mean.EV71_JAP__IASR__inc)#
+	sig_pv1[k,2]<-mean(temp$obs_mean.CA16_JAP__IASR__inc)#
+	sig_pv1[k,3]<-mean(temp$obs_mean.VAC_JAP__IASR__inc)#
+	}
+pdf("../eq_vacc_plot_siqri_lowr0.pdf")#
+plot(vc,sig_pv1[,1],type="l",yli=c(0,7), ylab="Mean incidence",xlab="proportion vaccinated against EV71",col="red")#
+lines(vc,sig_pv1[,2],type="l",col="purple")#
+dev.off()#
+vac<-(sig_pv1[1,1]-sig_pv1[,1])/sig_pv1[1,1]#
+pdf("../eq_vacc_plot_siqri2lowr0.pdf")#
+plot(vc,vac,type="l",ylim=c(0,1),ylab="Relative proportion cases averted",xlab="proportion vaccinated against EV71",col="red", lwd=1.4, bty="n")#
+lines(x=c(0,1),y=c(0,1),col="red",lty=2,lwd=1.4)
+setwd("~/hfmd/hfmd_siqr_hbrs_b_v/model")#
+#
+system("test -d ../results/sim/ || mkdir -p ../results/sim/")#
+system("test -d ../results/sim_EV/ || mkdir -p ../results/sim_EV/")#
+system("test -d ../results/sim_CA/ || mkdir -p ../results/sim_CA/")#
+system("test -d ../results/sim_BOTH/ || mkdir -p ../results/sim_BOTH/")#
+system("test -d ../results/sim_EV/final/ || mkdir -p ../results/sim_EV/final/")#
+system("test -d ../results/sim_CA/final/ || mkdir -p ../results/sim_CA/final/")#
+system("test -d ../results/sim_BOTH/final/ || mkdir -p ../results/sim_BOTH/final/")#
+#
+system("fit theta -S p:all:guess:0.0,e:all:guess:0.0 | ./simul ode --traj -T 500000 -o 780 -D 1781 -i 0")#
+#
+vc<-seq(0,1,0.05)#
+#vsig<-seq(0,1,0.1)#
+len=length(vc)#
+#lenv=length(vsig)#
+#
+#create 2 matrices to store sig vs pv#
+EV.0<-vector("numeric",len)#
+CA.0<-vector("numeric",len)#
+#
+#vsig_pv1<-array(NA,dim=c(len,lenv,2),dimnames=c(vc,vsig,c("EV","CA")))#
+sig_pv1<-array(NA,dim=c(len,2),dimnames=c(vc,c("EV","CA")))#
+#
+for(k in 1:len){#
+	j=k-1#
+	setwd("~/hfmd/hfmd_siqr_hbrs_b_v/model")#
+#
+	system(paste("fit theta -X -S e:all:guess:0.0,p:all:guess:",vc[k]," | ./simul ode --traj -o 781 -T 500000 -D 1781 -p ../results/sim_EV/ -i ",j,sep=""))#
+#
+	temp<-read.csv(paste("~/hfmd/hfmd_siqr_hbrs_b_v/results/sim_EV/X_",j,".csv",sep=""),header=TRUE)#
+	sig_pv1[k,1]<-mean(temp[[14]])#
+	sig_pv1[k,2]<-mean(temp[[15]])#
+	}
+pdf("../eq_vacc_plot_siqrlowr0.pdf")#
+plot(vc,sig_pv1[,1],type="l",ylim=c(0,5),ylab="Mean incidence",xlab="proportion vaccinated against EV71",col="red")#
+lines(vc,sig_pv1[,2],type="l",col="blue")#
+dev.off()#
+#
+vac<-(sig_pv1[1,1]-sig_pv1[,1])/sig_pv1[1,1]#
+pdf("../eq_vacc_plot_siqri2lowr0.pdf")#
+plot(vc,vac,type="l",ylim=c(0,1),ylab="Relative proportion cases averted",xlab="proportion vaccinated against EV71",col="red", lwd=1.4, bty="n")#
+lines(x=c(0,1),y=c(0,1),col="red",lty=2,lwd=1.4)#
+#
+#lines(vc,sig_pv1[,3]/sig_pv1[1,1],type="l",col="red",lty=2,lwd=1.4)#
+dev.off()
+setwd("~/hfmd/hfmd_siqr_hbrs_b_v/model")#
+#
+system("test -d ../results/sim/ || mkdir -p ../results/sim/")#
+system("test -d ../results/sim_EV/ || mkdir -p ../results/sim_EV/")#
+system("test -d ../results/sim_CA/ || mkdir -p ../results/sim_CA/")#
+system("test -d ../results/sim_BOTH/ || mkdir -p ../results/sim_BOTH/")#
+system("test -d ../results/sim_EV/final/ || mkdir -p ../results/sim_EV/final/")#
+system("test -d ../results/sim_CA/final/ || mkdir -p ../results/sim_CA/final/")#
+system("test -d ../results/sim_BOTH/final/ || mkdir -p ../results/sim_BOTH/final/")#
+#
+system("fit theta -S p:all:guess:0.0,e:all:guess:0.0 | ./simul ode --traj -T 500000 -o 780 -D 1781 -i 0")#
+#
+vc<-seq(0,1,0.05)#
+#vsig<-seq(0,1,0.1)#
+len=length(vc)#
+#lenv=length(vsig)#
+#
+#create 2 matrices to store sig vs pv#
+EV.0<-vector("numeric",len)#
+CA.0<-vector("numeric",len)#
+#
+#vsig_pv1<-array(NA,dim=c(len,lenv,2),dimnames=c(vc,vsig,c("EV","CA")))#
+sig_pv1<-array(NA,dim=c(len,2),dimnames=c(vc,c("EV","CA")))#
+#
+for(k in 1:len){#
+	j=k-1#
+	setwd("~/hfmd/hfmd_siqr_hbrs_b_v/model")#
+#
+	system(paste("fit theta -X -S e:all:guess:0.0,p:all:guess:",vc[k]," | ./simul ode --traj -o 781 -T 500000 -D 1781 -p ../results/sim_EV/ -i ",j,sep=""))#
+#
+	temp<-read.csv(paste("~/hfmd/hfmd_siqr_hbrs_b_v/results/sim_EV/X_",j,".csv",sep=""),header=TRUE)#
+	sig_pv1[k,1]<-mean(temp[[14]])#
+	sig_pv1[k,2]<-mean(temp[[15]])#
+	}
+pdf("../eq_vacc_plot_siqrhighr0.pdf")#
+plot(vc,sig_pv1[,1],type="l",ylim=c(0,5),ylab="Mean incidence",xlab="proportion vaccinated against EV71",col="red")#
+lines(vc,sig_pv1[,2],type="l",col="blue")#
+dev.off()#
+#
+vac<-(sig_pv1[1,1]-sig_pv1[,1])/sig_pv1[1,1]#
+pdf("../eq_vacc_plot_siqri2highr0.pdf")#
+plot(vc,vac,type="l",ylim=c(0,1),ylab="Relative proportion cases averted",xlab="proportion vaccinated against EV71",col="red", lwd=1.4, bty="n")#
+lines(x=c(0,1),y=c(0,1),col="red",lty=2,lwd=1.4)#
+#
+#lines(vc,sig_pv1[,3]/sig_pv1[1,1],type="l",col="red",lty=2,lwd=1.4)#
+dev.off()
+setwd("~/hfmd/hfmd_siqr_hbrs_b_v/model")#
+#
+system("test -d ../results/sim/ || mkdir -p ../results/sim/")#
+system("test -d ../results/sim_EV/ || mkdir -p ../results/sim_EV/")#
+system("test -d ../results/sim_CA/ || mkdir -p ../results/sim_CA/")#
+system("test -d ../results/sim_BOTH/ || mkdir -p ../results/sim_BOTH/")#
+system("test -d ../results/sim_EV/final/ || mkdir -p ../results/sim_EV/final/")#
+system("test -d ../results/sim_CA/final/ || mkdir -p ../results/sim_CA/final/")#
+system("test -d ../results/sim_BOTH/final/ || mkdir -p ../results/sim_BOTH/final/")#
+#
+system("fit theta -S p:all:guess:0.0,e:all:guess:0.0 | ./simul ode --traj -T 500000 -o 780 -D 1781 -i 0")#
+#
+vc<-seq(0,1,0.01)#
+#vsig<-seq(0,1,0.1)#
+len=length(vc)#
+#lenv=length(vsig)#
+#
+#create 2 matrices to store sig vs pv#
+EV.0<-vector("numeric",len)#
+CA.0<-vector("numeric",len)#
+#
+#vsig_pv1<-array(NA,dim=c(len,lenv,2),dimnames=c(vc,vsig,c("EV","CA")))#
+sig_pv1<-array(NA,dim=c(len,2),dimnames=c(vc,c("EV","CA")))#
+#
+for(k in 1:len){#
+	j=k-1#
+	setwd("~/hfmd/hfmd_siqr_hbrs_b_v/model")#
+#
+	system(paste("fit theta -X -S e:all:guess:0.0,p:all:guess:",vc[k]," | ./simul ode --traj -o 781 -T 500000 -D 1781 -p ../results/sim_EV/ -i ",j,sep=""))#
+#
+	temp<-read.csv(paste("~/hfmd/hfmd_siqr_hbrs_b_v/results/sim_EV/X_",j,".csv",sep=""),header=TRUE)#
+	sig_pv1[k,1]<-mean(temp[[14]])#
+	sig_pv1[k,2]<-mean(temp[[15]])#
+	}
+pdf("../eq_vacc_plot_siqrhighr0.pdf")#
+plot(vc,sig_pv1[,1],type="l",ylim=c(0,5),ylab="Mean incidence",xlab="proportion vaccinated against EV71",col="red")#
+lines(vc,sig_pv1[,2],type="l",col="blue")#
+dev.off()#
+#
+vac<-(sig_pv1[1,1]-sig_pv1[,1])/sig_pv1[1,1]#
+pdf("../eq_vacc_plot_siqri2highr0.pdf")#
+plot(vc,vac,type="l",ylim=c(0,1),ylab="Relative proportion cases averted",xlab="proportion vaccinated against EV71",col="red", lwd=1.4, bty="n")#
+lines(x=c(0,1),y=c(0,1),col="red",lty=2,lwd=1.4)#
+#
+#lines(vc,sig_pv1[,3]/sig_pv1[1,1],type="l",col="red",lty=2,lwd=1.4)#
+dev.off()
+plot(vc,vac,type="l",ylim=c(0,1),ylab="Relative proportion cases averted",xlab="proportion vaccinated against EV71",col="red", lwd=1.4, bty="n")
+lines(x=c(0,1),y=c(0,1),col="red",lty=2,lwd=1.4)
+setwd("~/hfmd/hfmd_siqr_hbrs_b_v/model")#
+#
+system("test -d ../results/sim/ || mkdir -p ../results/sim/")#
+system("test -d ../results/sim_EV/ || mkdir -p ../results/sim_EV/")#
+system("test -d ../results/sim_CA/ || mkdir -p ../results/sim_CA/")#
+system("test -d ../results/sim_BOTH/ || mkdir -p ../results/sim_BOTH/")#
+system("test -d ../results/sim_EV/final/ || mkdir -p ../results/sim_EV/final/")#
+system("test -d ../results/sim_CA/final/ || mkdir -p ../results/sim_CA/final/")#
+system("test -d ../results/sim_BOTH/final/ || mkdir -p ../results/sim_BOTH/final/")#
+#
+system("fit theta -S p:all:guess:0.0,e:all:guess:0.0 | ./simul ode --traj -T 500000 -o 780 -D 17810 -i 0")#
+#
+vc<-seq(0,1,0.01)#
+#vsig<-seq(0,1,0.1)#
+len=length(vc)#
+#lenv=length(vsig)#
+#
+#create 2 matrices to store sig vs pv#
+EV.0<-vector("numeric",len)#
+CA.0<-vector("numeric",len)#
+#
+#vsig_pv1<-array(NA,dim=c(len,lenv,2),dimnames=c(vc,vsig,c("EV","CA")))#
+sig_pv1<-array(NA,dim=c(len,2),dimnames=c(vc,c("EV","CA")))#
+#
+for(k in 1:len){#
+	j=k-1#
+	setwd("~/hfmd/hfmd_siqr_hbrs_b_v/model")#
+#
+	system(paste("fit theta -X -S e:all:guess:0.0,p:all:guess:",vc[k]," | ./simul ode --traj -o 781 -T 500000 -D 17810 -p ../results/sim_EV/ -i ",j,sep=""))#
+#
+	temp<-read.csv(paste("~/hfmd/hfmd_siqr_hbrs_b_v/results/sim_EV/X_",j,".csv",sep=""),header=TRUE)#
+	sig_pv1[k,1]<-mean(temp[[14]])#
+	sig_pv1[k,2]<-mean(temp[[15]])#
+	}
+pdf("../eq_vacc_plot_siqrhighr0.pdf")#
+plot(vc,sig_pv1[,1],type="l",ylim=c(0,5),ylab="Mean incidence",xlab="proportion vaccinated against EV71",col="red")#
+lines(vc,sig_pv1[,2],type="l",col="blue")#
+dev.off()#
+#
+vac<-(sig_pv1[1,1]-sig_pv1[,1])/sig_pv1[1,1]#
+pdf("../eq_vacc_plot_siqr2highr0.pdf")#
+plot(vc,vac,type="l",ylim=c(0,1),ylab="Relative proportion cases averted",xlab="proportion vaccinated against EV71",col="red", lwd=1.4, bty="n")#
+lines(x=c(0,1),y=c(0,1),col="red",lty=2,lwd=1.4)#
+#
+#lines(vc,sig_pv1[,3]/sig_pv1[1,1],type="l",col="red",lty=2,lwd=1.4)#
+dev.off()
+setwd("~/hfmd/hfmd_siqr_hbrs_b_v/model")#
+#
+system("test -d ../results/sim/ || mkdir -p ../results/sim/")#
+system("test -d ../results/sim_EV/ || mkdir -p ../results/sim_EV/")#
+system("test -d ../results/sim_CA/ || mkdir -p ../results/sim_CA/")#
+system("test -d ../results/sim_BOTH/ || mkdir -p ../results/sim_BOTH/")#
+system("test -d ../results/sim_EV/final/ || mkdir -p ../results/sim_EV/final/")#
+system("test -d ../results/sim_CA/final/ || mkdir -p ../results/sim_CA/final/")#
+system("test -d ../results/sim_BOTH/final/ || mkdir -p ../results/sim_BOTH/final/")#
+#
+system("fit theta -S p:all:guess:0.0,e:all:guess:0.0 | ./simul ode --traj -T 500000 -o 780 -D 57810 -i 0")#
+#
+vc<-seq(0,1,0.01)#
+#vsig<-seq(0,1,0.1)#
+len=length(vc)#
+#lenv=length(vsig)#
+#
+#create 2 matrices to store sig vs pv#
+EV.0<-vector("numeric",len)#
+CA.0<-vector("numeric",len)#
+#
+#vsig_pv1<-array(NA,dim=c(len,lenv,2),dimnames=c(vc,vsig,c("EV","CA")))#
+sig_pv1<-array(NA,dim=c(len,2),dimnames=c(vc,c("EV","CA")))#
+#
+for(k in 1:len){#
+	j=k-1#
+	setwd("~/hfmd/hfmd_siqr_hbrs_b_v/model")#
+#
+	system(paste("fit theta -X -S e:all:guess:0.0,p:all:guess:",vc[k]," | ./simul ode --traj -o 781 -T 500000 -D 57810 -p ../results/sim_EV/ -i ",j,sep=""))#
+#
+	temp<-read.csv(paste("~/hfmd/hfmd_siqr_hbrs_b_v/results/sim_EV/X_",j,".csv",sep=""),header=TRUE)#
+	sig_pv1[k,1]<-mean(temp[[14]])#
+	sig_pv1[k,2]<-mean(temp[[15]])#
+	}
+pdf("../eq_vacc_plot_siqrhighr0.pdf")#
+plot(vc,sig_pv1[,1],type="l",ylim=c(0,5),ylab="Mean incidence",xlab="proportion vaccinated against EV71",col="red")#
+lines(vc,sig_pv1[,2],type="l",col="blue")#
+dev.off()#
+#
+vac<-(sig_pv1[1,1]-sig_pv1[,1])/sig_pv1[1,1]#
+pdf("../eq_vacc_plot_siqr2highr0.pdf")#
+plot(vc,vac,type="l",ylim=c(0,1),ylab="Relative proportion cases averted",xlab="proportion vaccinated against EV71",col="red", lwd=1.4, bty="n")#
+lines(x=c(0,1),y=c(0,1),col="red",lty=2,lwd=1.4)#
+#lines(vc,sig_pv1[,3]/sig_pv1[1,1],type="l",col="red",lty=2,lwd=1.4)#
+dev.off()
+fork siqr_b and add vaccination (reduce birth rate)#
+#just look at monovalent vaccination#
+#first assume vaccine is as protective as nat cross protection#
+#then assume vaccine protection is smaller than nat cross protection#
+setwd("~/hfmd/hfmd_siqr_hbrs_b_v/model")#
+#
+system("test -d ../results/sim/ || mkdir -p ../results/sim/")#
+system("test -d ../results/sim_EV/ || mkdir -p ../results/sim_EV/")#
+system("test -d ../results/sim_CA/ || mkdir -p ../results/sim_CA/")#
+system("test -d ../results/sim_BOTH/ || mkdir -p ../results/sim_BOTH/")#
+system("test -d ../results/sim_EV/final/ || mkdir -p ../results/sim_EV/final/")#
+system("test -d ../results/sim_CA/final/ || mkdir -p ../results/sim_CA/final/")#
+system("test -d ../results/sim_BOTH/final/ || mkdir -p ../results/sim_BOTH/final/")#
+#
+system("fit theta -S p:all:guess:0.0,e:all:guess:0.0 | ./simul ode --traj -T 500000 -o 780 -D 57810 -i 0")#
+#
+vc<-seq(0,1,0.01)#
+#vsig<-seq(0,1,0.1)#
+len=length(vc)#
+#lenv=length(vsig)#
+#
+#create 2 matrices to store sig vs pv#
+EV.0<-vector("numeric",len)#
+CA.0<-vector("numeric",len)#
+#
+#vsig_pv1<-array(NA,dim=c(len,lenv,2),dimnames=c(vc,vsig,c("EV","CA")))#
+sig_pv1<-array(NA,dim=c(len,2),dimnames=c(vc,c("EV","CA")))#
+#
+for(k in 1:len){#
+	j=k-1#
+	setwd("~/hfmd/hfmd_siqr_hbrs_b_v/model")#
+#
+	system(paste("fit theta -X -S e:all:guess:0.0,p:all:guess:",vc[k]," | ./simul ode --traj -o 781 -T 500000 -D 57810 -p ../results/sim_EV/ -i ",j,sep=""))#
+#
+	temp<-read.csv(paste("~/hfmd/hfmd_siqr_hbrs_b_v/results/sim_EV/X_",j,".csv",sep=""),header=TRUE)#
+	sig_pv1[k,1]<-mean(temp[[14]])#
+	sig_pv1[k,2]<-mean(temp[[15]])#
+	}
+pdf("../eq_vacc_plot_siqrlowr0.pdf")#
+plot(vc,sig_pv1[,1],type="l",ylim=c(0,5),ylab="Mean incidence",xlab="proportion vaccinated against EV71",col="red")#
+lines(vc,sig_pv1[,2],type="l",col="blue")#
+dev.off()#
+#
+vac<-(sig_pv1[1,1]-sig_pv1[,1])/sig_pv1[1,1]#
+pdf("../eq_vacc_plot_siqr2lowr0.pdf")#
+plot(vc,vac,type="l",ylim=c(0,1),ylab="Relative proportion cases averted",xlab="proportion vaccinated against EV71",col="red", lwd=1.4, bty="n")#
+lines(x=c(0,1),y=c(0,1),col="red",lty=2,lwd=1.4)#
+#lines(vc,sig_pv1[,3]/sig_pv1[1,1],type="l",col="red",lty=2,lwd=1.4)#
+dev.off()
+pdf("../eq_vacc_plot_siqrlowr0.pdf")#
+plot(vc,sig_pv1[,1],type="l",ylim=c(0,8),ylab="Mean incidence",xlab="proportion vaccinated against EV71",col="red")#
+lines(vc,sig_pv1[,2],type="l",col="blue")#
+dev.off()
+pdf("../eq_vacc_plot_siqrlowr0.pdf")#
+plot(vc,sig_pv1[,1],type="l",ylim=c(0,6),ylab="Mean incidence",xlab="proportion vaccinated against EV71",col="red")#
+lines(vc,sig_pv1[,2],type="l",col="blue")#
+dev.off()
+setwd("~/hfmd/hfmd_siqr_hbrs_b_v/model")#
+#
+system("test -d ../results/sim/ || mkdir -p ../results/sim/")#
+system("test -d ../results/sim_EV/ || mkdir -p ../results/sim_EV/")#
+system("test -d ../results/sim_CA/ || mkdir -p ../results/sim_CA/")#
+system("test -d ../results/sim_BOTH/ || mkdir -p ../results/sim_BOTH/")#
+system("test -d ../results/sim_EV/final/ || mkdir -p ../results/sim_EV/final/")#
+system("test -d ../results/sim_CA/final/ || mkdir -p ../results/sim_CA/final/")#
+system("test -d ../results/sim_BOTH/final/ || mkdir -p ../results/sim_BOTH/final/")#
+#
+system("fit theta -S p:all:guess:0.0,e:all:guess:0.0 | ./simul ode --traj -T 500000 -o 780 -D 57810 -i 0")#
+#
+vc<-seq(0,1,0.01)#
+#vsig<-seq(0,1,0.1)#
+len=length(vc)#
+#lenv=length(vsig)#
+#
+#create 2 matrices to store sig vs pv#
+EV.0<-vector("numeric",len)#
+CA.0<-vector("numeric",len)#
+#
+#vsig_pv1<-array(NA,dim=c(len,lenv,2),dimnames=c(vc,vsig,c("EV","CA")))#
+sig_pv1<-array(NA,dim=c(len,2),dimnames=c(vc,c("EV","CA")))#
+#
+for(k in 1:len){#
+	j=k-1#
+	setwd("~/hfmd/hfmd_siqr_hbrs_b_v/model")#
+#
+	system(paste("fit theta -X -S e:all:guess:0.0,p:all:guess:",vc[k]," | ./simul ode --traj -o 781 -T 500000 -D 57810 -p ../results/sim_EV/ -i ",j,sep=""))#
+#
+	temp<-read.csv(paste("~/hfmd/hfmd_siqr_hbrs_b_v/results/sim_EV/X_",j,".csv",sep=""),header=TRUE)#
+	sig_pv1[k,1]<-mean(temp[[14]])#
+	sig_pv1[k,2]<-mean(temp[[15]])#
+	}
+vac<-(sig_pv1[1,1]-sig_pv1[,1])/sig_pv1[1,1]#
+pdf("../eq_vacc_plot_siqr2lowr0.pdf")#
+plot(vc,vac,type="l",ylim=c(0,1),ylab="Relative proportion cases averted",xlab="proportion vaccinated against EV71",col="red", lwd=1.4, bty="n")#
+lines(x=c(0,1),y=c(0,1),col="red",lty=2,lwd=1.4)#
+#lines(vc,sig_pv1[,3]/sig_pv1[1,1],type="l",col="red",lty=2,lwd=1.4)#
+dev.off()
+quartz()
+plot(vc,vac,type="l",ylim=c(0,1),ylab="Relative proportion cases averted",xlab="proportion vaccinated against EV71",col="red", lwd=1.4, bty="n")#
+lines(x=c(0,1),y=c(0,1),col="red",lty=2,lwd=1.4)
+plot(vc,sig_pv1[,1],type="l",ylim=c(0,6),ylab="Mean incidence",xlab="proportion vaccinated against EV71",col="red")#
+lines(vc,sig_pv1[,2],type="l",col="blue")
+vac<-(sig_pv1[1,1]-sig_pv1[,1])/sig_pv1[1,1]#
+pdf("eq_vacc_plot_siqr2lowr0.pdf")#
+plot(vc,vac,type="l",ylim=c(0,1),ylab="Relative proportion cases averted",xlab="proportion vaccinated against EV71",col="red", lwd=1.4, bty="n")#
+lines(x=c(0,1),y=c(0,1),col="red",lty=2,lwd=1.4)#
+#
+dev.off()
+vac<-(sig_pv1[1,1]-sig_pv1[,1])/sig_pv1[1,1]#
+pdf("eq_vacc_plot_siqr2lowr0.pdf")#
+plot(vc,vac,type="l",ylim=c(0,1),ylab="Relative proportion cases averted",xlab="proportion vaccinated against EV71",col="red", lwd=1.4, bty="n")#
+lines(x=c(0,1),y=c(0,1),col="red",lty=2,lwd=1.4)#
+#
+dev.off()
+vac<-(sig_pv1[1,1]-sig_pv1[,1])/sig_pv1[1,1]
+vac<-(sig_pv1[1,1]-sig_pv1[,1])/sig_pv1[1,1]#
+pdf("~/hfmd/hfmd_siqri_hbrs_b_v/eq_vacc_plot_siqri_lowr0_2.pdf")#
+plot(vc,vac,type="l",ylim=c(0,1),ylab="Relative proportion cases averted",xlab="proportion vaccinated against EV71",col="red", lwd=1.4, bty="n")#
+lines(x=c(0,1),y=c(0,1),col="red",lty=2,lwd=1.4)#
+#
+dev.off()

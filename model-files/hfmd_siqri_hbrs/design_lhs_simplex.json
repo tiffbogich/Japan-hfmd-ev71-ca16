@@ -1,0 +1,54 @@
+{
+  "name": "lhs_simplex",
+  "description": "with some magic to get the right scaling",
+  "id": "lhs",
+  "H": 500,
+  "seed": "it will converge",
+  "correlate": [
+    {
+      "y": "r0_2:all",
+      "x": "r0_1:all",
+      "f": "identity",
+      "range": [
+        -1,
+        1
+      ]
+    },
+    {
+      "y": "iota_2:all",
+      "x": "iota_1:all",
+      "f": "identity",
+      "range": [
+        0,
+        0.25
+      ]
+    },
+    {
+      "y": "z:all",
+      "x": "r0_1:all",
+      "f": "inverse",
+      "range": [
+        -0.05,
+        0.05
+      ]
+    }
+  ],
+  "cmd": [
+    {
+      "comment": "Get the initial conditions (no forcing). Note that even if we turn off the forcing, there could be an Hopf bifucation => we compute the average rep on 1000 week",
+      "pipe": "-D -I -S e:all:guess:0.0",
+      "algorithm": "simul ode -T 100000 -D 1000 --traj --freq W --quiet"
+    },
+    {
+      "comment": "First simplex + rescale reporting rate",
+      "pipe": "-D -X -r rep",
+      "algorithm": "simplex -M 10000 --no_trace --prior --quiet"
+    },
+    {
+      "comment": "We chain simplex",
+      "pipe": "-T -u 0.01",
+      "algorithm": "simplex -M 10000 --no_trace --prior --quiet",
+      "repeat": 19
+    }
+  ]
+}

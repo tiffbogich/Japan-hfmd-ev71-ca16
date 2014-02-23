@@ -1,0 +1,91 @@
+{
+  "name": "HFMD Japan simulation",
+  "description": "HFMD Japan simulation",
+  "disease": [
+    "HFMD"
+  ],
+  "population": [
+    {
+      "id": "Japan__all",
+      "size_t0": 127615740
+    }
+  ],
+  "time_series": [
+    {
+      "id": "EV71_JAP__IASR__inc",
+      "population_id": [
+        "Japan__all"
+      ]
+    },
+    {
+      "id": "CA16_JAP__IASR__inc",
+      "population_id": [
+        "Japan__all"
+      ]
+    }
+  ],
+  "frequency": "W",
+  "data": [
+    {
+      "id": "prop",
+      "comment": "proportion of the population under surveillance",
+      "source": [
+        [
+          "date",
+          "EV71_JAP__IASR__inc",
+          "CA16_JAP__IASR__inc"
+        ],
+        [
+          "2011/12/24",
+          0.0178571428571429,
+          0.0178571428571429
+        ]
+      ]
+    },
+    {
+      "id": "ptest",
+      "comment": "proportion of hospitals testing patient with symptoms",
+      "source": [
+        [
+          "date",
+          "EV71_JAP__IASR__inc",
+          "CA16_JAP__IASR__inc"
+        ],
+        [
+          "2011/12/24",
+          0.1,
+          0.1
+        ]
+      ]
+    },
+    {
+      "id": "mu_b",
+      "comment": "birth rates",
+      "source": [
+        [
+          "date",
+          "Japan__all"
+        ],
+        [
+          "2011/12/24",
+          0.000160484914607758
+        ]
+      ]
+    },
+    {
+      "id": "mu_d",
+      "comment": "death rates",
+      "source": [
+        [
+          "date",
+          "Japan__all"
+        ],
+        [
+          "2011/12/24",
+          0.00019095056583687
+        ]
+      ]
+    }
+  ],
+  "type": "context"
+}

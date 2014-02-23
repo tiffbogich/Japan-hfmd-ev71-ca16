@@ -1,0 +1,489 @@
+{
+  "name": "SIRI_HBRS HFMD Japan",
+  "description": "...",
+  "type": "theta",
+  "parameter": {
+    "SS": {
+      "transformation": "logit",
+      "partition_id": "identical_population",
+      "group": {
+        "all": {
+          "min": {
+            "value": 0
+          },
+          "guess": {
+            "value": 0.152571
+          },
+          "max": {
+            "value": 0.95
+          },
+          "sd_transf": {
+            "value": 0.2
+          },
+          "prior": {
+            "value": "uniform"
+          }
+        }
+      }
+    },
+    "IS": {
+      "transformation": "logit",
+      "partition_id": "identical_population",
+      "group": {
+        "all": {
+          "min": {
+            "value": 0
+          },
+          "guess": {
+            "value": 0.0000284093
+          },
+          "max": {
+            "value": 0.01
+          },
+          "sd_transf": {
+            "value": 0.2
+          },
+          "prior": {
+            "value": "uniform"
+          }
+        }
+      }
+    },
+    "SI": {
+      "transformation": "logit",
+      "partition_id": "identical_population",
+      "group": {
+        "all": {
+          "min": {
+            "value": 0
+          },
+          "guess": {
+            "value": 0.0000149115
+          },
+          "max": {
+            "value": 0.01
+          },
+          "sd_transf": {
+            "value": 0.2
+          },
+          "prior": {
+            "value": "uniform"
+          }
+        }
+      }
+    },
+    "RS": {
+      "transformation": "logit",
+      "partition_id": "identical_population",
+      "group": {
+        "all": {
+          "min": {
+            "value": 0
+          },
+          "guess": {
+            "value": 0.00721506
+          },
+          "max": {
+            "value": 0.95
+          },
+          "sd_transf": {
+            "value": 0.2
+          },
+          "prior": {
+            "value": "uniform"
+          }
+        }
+      }
+    },
+    "SR": {
+      "transformation": "logit",
+      "partition_id": "identical_population",
+      "group": {
+        "all": {
+          "min": {
+            "value": 0
+          },
+          "guess": {
+            "value": 0.0065505
+          },
+          "max": {
+            "value": 0.95
+          },
+          "sd_transf": {
+            "value": 0.2
+          },
+          "prior": {
+            "value": "uniform"
+          }
+        }
+      }
+    },
+    "IR": {
+      "transformation": "logit",
+      "partition_id": "identical_population",
+      "group": {
+        "all": {
+          "min": {
+            "value": 0
+          },
+          "guess": {
+            "value": 9.5e-18
+          },
+          "max": {
+            "value": 0.95
+          },
+          "sd_transf": {
+            "value": 0
+          },
+          "prior": {
+            "value": "uniform"
+          }
+        }
+      }
+    },
+    "RI": {
+      "transformation": "logit",
+      "partition_id": "identical_population",
+      "group": {
+        "all": {
+          "min": {
+            "value": 0
+          },
+          "guess": {
+            "value": 9.5e-18
+          },
+          "max": {
+            "value": 0.95
+          },
+          "sd_transf": {
+            "value": 0
+          },
+          "prior": {
+            "value": "uniform"
+          }
+        }
+      }
+    },
+    "r0_1": {
+      "transformation": "log",
+      "partition_id": "identical_population",
+      "group": {
+        "all": {
+          "min": {
+            "value": 2.05
+          },
+          "guess": {
+            "value": 3.30781
+          },
+          "max": {
+            "value": 2.78
+          },
+          "sd_transf": {
+            "value": 0.04
+          },
+          "prior": {
+            "value": "normal"
+          }
+        }
+      }
+    },
+    "r0_2": {
+      "transformation": "log",
+      "partition_id": "identical_population",
+      "group": {
+        "all": {
+          "min": {
+            "value": 2.05
+          },
+          "guess": {
+            "value": 3.26443
+          },
+          "max": {
+            "value": 2.78
+          },
+          "sd_transf": {
+            "value": 0.04
+          },
+          "prior": {
+            "value": "normal"
+          }
+        }
+      }
+    },
+    "v": {
+      "unit": "D",
+      "type": "rate_as_duration",
+      "transformation": "log",
+      "partition_id": "identical_population",
+      "group": {
+        "all": {
+          "min": {
+            "value": 2.15
+          },
+          "guess": {
+            "value": 1.66983
+          },
+          "max": {
+            "value": 2.81
+          },
+          "sd_transf": {
+            "value": 0.04
+          },
+          "prior": {
+            "value": "normal"
+          }
+        }
+      }
+    },
+    "e": {
+      "transformation": "logit",
+      "partition_id": "identical_population",
+      "group": {
+        "all": {
+          "min": {
+            "value": 0.001
+          },
+          "guess": {
+            "value": 0.0271059
+          },
+          "max": {
+            "value": 0.3
+          },
+          "sd_transf": {
+            "value": 0.2
+          },
+          "prior": {
+            "value": "uniform"
+          }
+        }
+      }
+    },
+    "d": {
+      "transformation": "log",
+      "partition_id": "identical_population",
+      "group": {
+        "all": {
+          "min": {
+            "value": 0.6
+          },
+          "guess": {
+            "value": 0.92848
+          },
+          "max": {
+            "value": 0.99
+          },
+          "sd_transf": {
+            "value": 0.04
+          },
+          "prior": {
+            "value": "uniform"
+          }
+        }
+      }
+    },
+    "sigma": {
+      "transformation": "logit",
+      "partition_id": "identical_population",
+      "group": {
+        "all": {
+          "min": {
+            "value": 0.1
+          },
+          "guess": {
+            "value": 0.967608
+          },
+          "max": {
+            "value": 0.98
+          },
+          "sd_transf": {
+            "value": 0.2
+          },
+          "prior": {
+            "value": "uniform"
+          }
+        }
+      }
+    },
+    "sto": {
+      "transformation": "log",
+      "partition_id": "identical_population",
+      "group": {
+        "all": {
+          "min": {
+            "value": 0
+          },
+          "guess": {
+            "value": 0.177882
+          },
+          "max": {
+            "value": 0.8
+          },
+          "sd_transf": {
+            "value": 0.02
+          },
+          "prior": {
+            "value": "uniform"
+          }
+        }
+      }
+    },
+    "iota_1": {
+      "transformation": "scale_pow10_bounded",
+      "partition_id": "identical_population",
+      "group": {
+        "all": {
+          "min": {
+            "value": -3.5
+          },
+          "guess": {
+            "value": -3.01927
+          },
+          "max": {
+            "value": 4
+          },
+          "sd_transf": {
+            "value": 0.04
+          },
+          "prior": {
+            "value": "uniform"
+          }
+        }
+      }
+    },
+    "iota_2": {
+      "transformation": "scale_pow10_bounded",
+      "partition_id": "identical_population",
+      "group": {
+        "all": {
+          "min": {
+            "value": -3.5
+          },
+          "guess": {
+            "value": -2.90409
+          },
+          "max": {
+            "value": 4
+          },
+          "sd_transf": {
+            "value": 0.04
+          },
+          "prior": {
+            "value": "uniform"
+          }
+        }
+      }
+    },
+    "z": {
+      "transformation": "logit",
+      "partition_id": "identical_population",
+      "group": {
+        "all": {
+          "min": {
+            "value": 0
+          },
+          "guess": {
+            "value": 0.179505
+          },
+          "max": {
+            "value": 0.95
+          },
+          "sd_transf": {
+            "value": 0.2
+          },
+          "prior": {
+            "value": "uniform"
+          }
+        }
+      }
+    },
+    "rep": {
+      "transformation": "logit",
+      "partition_id": "variable_time_series",
+      "group": {
+        "EV71_JAP__IASR__inc": {
+          "min": {
+            "value": 0.05
+          },
+          "guess": {
+            "value": 0.0754124
+          },
+          "max": {
+            "value": 0.3
+          },
+          "sd_transf": {
+            "value": 0.2
+          },
+          "prior": {
+            "value": "normal"
+          }
+        },
+        "CA16_JAP__IASR__inc": {
+          "min": {
+            "value": 0.05
+          },
+          "guess": {
+            "value": 0.0947891
+          },
+          "max": {
+            "value": 0.3
+          },
+          "sd_transf": {
+            "value": 0.2
+          },
+          "prior": {
+            "value": "normal"
+          }
+        }
+      }
+    }
+  },
+  "partition": {
+    "variable_population": {
+      "group": [
+        {
+          "id": "Japan__all",
+          "population_id": [
+            "Japan__all"
+          ]
+        }
+      ]
+    },
+    "variable_time_series": {
+      "group": [
+        {
+          "id": "EV71_JAP__IASR__inc",
+          "time_series_id": [
+            "EV71_JAP__IASR__inc"
+          ]
+        },
+        {
+          "id": "CA16_JAP__IASR__inc",
+          "time_series_id": [
+            "CA16_JAP__IASR__inc"
+          ]
+        }
+      ]
+    },
+    "identical_population": {
+      "group": [
+        {
+          "id": "all",
+          "population_id": [
+            "Japan__all"
+          ]
+        }
+      ]
+    },
+    "identical_time_series": {
+      "group": [
+        {
+          "id": "all",
+          "time_series_id": [
+            "EV71_JAP__IASR__inc",
+            "CA16_JAP__IASR__inc"
+          ]
+        }
+      ]
+    }
+  }
+}

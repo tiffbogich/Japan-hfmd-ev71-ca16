@@ -1,0 +1,3 @@
+[93mWARNING[0m: sanitized e:all:min 0 (guess) -> 0.001 (min)
+[93mWARNING[0m: sanitized IS:all:max 9.664853953840531 (guess) -> 9 (max)
+[94mINFO[0m: unsticked IS:all (9->8.94)

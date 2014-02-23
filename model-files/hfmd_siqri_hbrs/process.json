@@ -1,0 +1,332 @@
+{
+  "name": "SIQRI_HBRS",
+  "type": "process",
+  "state": [
+    {
+      "id": "SS"
+    },
+    {
+      "id": "IS",
+      "tag": [
+        "infectious"
+      ]
+    },
+    {
+      "id": "SI",
+      "tag": [
+        "infectious"
+      ]
+    },
+    {
+      "id": "RS"
+    },
+    {
+      "id": "SR"
+    },
+    {
+      "id": "IR",
+      "tag": [
+        "infectious"
+      ]
+    },
+    {
+      "id": "RI",
+      "tag": [
+        "infectious"
+      ]
+    },
+    {
+      "id": "RR",
+      "tag": [
+        "remainder"
+      ]
+    },
+    {
+      "id": "SQ"
+    },
+    {
+      "id": "QS"
+    },
+    {
+      "id": "QR"
+    },
+    {
+      "id": "RQ"
+    }
+  ],
+  "parameter": [
+    {
+      "id": "r0_1"
+    },
+    {
+      "id": "r0_2"
+    },
+    {
+      "id": "v"
+    },
+    {
+      "id": "e"
+    },
+    {
+      "id": "d"
+    },
+    {
+      "id": "sigma"
+    },
+    {
+      "id": "sto"
+    },
+    {
+      "id": "iota_1"
+    },
+    {
+      "id": "iota_2"
+    },
+    {
+      "id": "mu_b"
+    },
+    {
+      "id": "mu_d"
+    },
+    {
+      "id": "q"
+    },
+    {
+      "id": "z"
+    }
+  ],
+  "model": [
+    {
+      "from": "U",
+      "to": "SS",
+      "rate": "mu_b*N",
+      "comment": "birth"
+    },
+    {
+      "from": "SS",
+      "to": "U",
+      "rate": "mu_d",
+      "comment": "death"
+    },
+    {
+      "from": "IS",
+      "to": "U",
+      "rate": "mu_d",
+      "comment": "death"
+    },
+    {
+      "from": "SI",
+      "to": "U",
+      "rate": "mu_d",
+      "comment": "death"
+    },
+    {
+      "from": "RS",
+      "to": "U",
+      "rate": "mu_d",
+      "comment": "death"
+    },
+    {
+      "from": "SR",
+      "to": "U",
+      "rate": "mu_d",
+      "comment": "death"
+    },
+    {
+      "from": "IR",
+      "to": "U",
+      "rate": "mu_d",
+      "comment": "death"
+    },
+    {
+      "from": "RI",
+      "to": "U",
+      "rate": "mu_d",
+      "comment": "death"
+    },
+    {
+      "from": "SQ",
+      "to": "U",
+      "rate": "mu_d",
+      "comment": "death"
+    },
+    {
+      "from": "QS",
+      "to": "U",
+      "rate": "mu_d",
+      "comment": "death"
+    },
+    {
+      "from": "QR",
+      "to": "U",
+      "rate": "mu_d",
+      "comment": "death"
+    },
+    {
+      "from": "RQ",
+      "to": "U",
+      "rate": "mu_d",
+      "comment": "death"
+    },
+    {
+      "from": "SS",
+      "to": "IS",
+      "rate": "r0_1/N*v*(1.0 +e*sin(2.0*M_PI*(t/ONE_YEAR + d)))*(IS+IR + iota_1)",
+      "tag": [
+        "transmission"
+      ]
+    },
+    {
+      "from": "SS",
+      "to": "SI",
+      "rate": "r0_2/N*v*(1.0 +e*sin(2.0*M_PI*(t/ONE_YEAR + d)))*(SI+RI + iota_2)",
+      "tag": [
+        "transmission"
+      ]
+    },
+    {
+      "from": "SR",
+      "to": "IR",
+      "rate": "sigma*r0_1/N*v*(1.0 +e*sin(2.0*M_PI*(t/ONE_YEAR + d)))*(IS+IR + iota_1)",
+      "tag": [
+        "transmission"
+      ]
+    },
+    {
+      "from": "RS",
+      "to": "RI",
+      "rate": "sigma*r0_2/N*v*(1.0 +e*sin(2.0*M_PI*(t/ONE_YEAR + d)))*(SI+RI + iota_2)",
+      "tag": [
+        "transmission"
+      ]
+    },
+    {
+      "from": "IS",
+      "to": "QS",
+      "rate": "correct_rate(v)"
+    },
+    {
+      "from": "SI",
+      "to": "SQ",
+      "rate": "correct_rate(v)"
+    },
+    {
+      "from": "IR",
+      "to": "QR",
+      "rate": "correct_rate(v)"
+    },
+    {
+      "from": "RI",
+      "to": "RQ",
+      "rate": "correct_rate(v)"
+    },
+    {
+      "from": "QS",
+      "to": "RS",
+      "rate": "correct_rate(q)"
+    },
+    {
+      "from": "SQ",
+      "to": "SR",
+      "rate": "correct_rate(q)"
+    },
+    {
+      "from": "QR",
+      "to": "RR",
+      "rate": "correct_rate(q)"
+    },
+    {
+      "from": "RQ",
+      "to": "RR",
+      "rate": "correct_rate(q)"
+    },
+    {
+      "from": "RS",
+      "to": "IS",
+      "rate": "z*r0_1/N*v*(1.0 +e*sin(2.0*M_PI*(t/ONE_YEAR + d)))*(IS+IR + iota_1)",
+      "tag": [
+        "transmission"
+      ],
+      "comment": "re-infection"
+    },
+    {
+      "from": "SR",
+      "to": "SI",
+      "rate": "z*r0_2/N*v*(1.0 +e*sin(2.0*M_PI*(t/ONE_YEAR + d)))*(SI+RI + iota_2)",
+      "tag": [
+        "transmission"
+      ],
+      "comment": "re-infection"
+    },
+    {
+      "from": "RR",
+      "to": "IR",
+      "rate": "z*sigma*r0_1/N*v*(1.0 +e*sin(2.0*M_PI*(t/ONE_YEAR + d)))*(IS+IR + iota_1)",
+      "tag": [
+        "transmission"
+      ],
+      "comment": "re-infection we assume multiplicative effects"
+    },
+    {
+      "from": "RR",
+      "to": "RI",
+      "rate": "z*sigma*r0_2/N*v*(1.0 +e*sin(2.0*M_PI*(t/ONE_YEAR + d)))*(SI+RI + iota_2)",
+      "tag": [
+        "transmission"
+      ],
+      "comment": "re-infection we assume multiplicative effects"
+    }
+  ],
+  "white_noise": [
+    {
+      "reaction": [
+        {
+          "from": "SS",
+          "to": "IS",
+          "rate": "r0_1/N*v*(1.0 +e*sin(2.0*M_PI*(t/ONE_YEAR + d)))*(IS+IR + iota_1)"
+        },
+        {
+          "from": "SR",
+          "to": "IR",
+          "rate": "sigma*r0_1/N*v*(1.0 +e*sin(2.0*M_PI*(t/ONE_YEAR + d)))*(IS+IR + iota_1)"
+        },
+        {
+          "from": "RS",
+          "to": "IS",
+          "rate": "z*r0_1/N*v*(1.0 +e*sin(2.0*M_PI*(t/ONE_YEAR + d)))*(IS+IR + iota_1)"
+        },
+        {
+          "from": "RR",
+          "to": "IR",
+          "rate": "z*sigma*r0_1/N*v*(1.0 +e*sin(2.0*M_PI*(t/ONE_YEAR + d)))*(IS+IR + iota_1)"
+        }
+      ],
+      "sd": "sto"
+    },
+    {
+      "reaction": [
+        {
+          "from": "SS",
+          "to": "SI",
+          "rate": "r0_2/N*v*(1.0 +e*sin(2.0*M_PI*(t/ONE_YEAR + d)))*(SI+RI + iota_2)"
+        },
+        {
+          "from": "RS",
+          "to": "RI",
+          "rate": "sigma*r0_2/N*v*(1.0 +e*sin(2.0*M_PI*(t/ONE_YEAR + d)))*(SI+RI + iota_2)"
+        },
+        {
+          "from": "SR",
+          "to": "SI",
+          "rate": "z*r0_2/N*v*(1.0 +e*sin(2.0*M_PI*(t/ONE_YEAR + d)))*(SI+RI + iota_2)"
+        },
+        {
+          "from": "RR",
+          "to": "RI",
+          "rate": "z*sigma*r0_2/N*v*(1.0 +e*sin(2.0*M_PI*(t/ONE_YEAR + d)))*(SI+RI + iota_2)"
+        }
+      ],
+      "sd": "sto"
+    }
+  ]
+}

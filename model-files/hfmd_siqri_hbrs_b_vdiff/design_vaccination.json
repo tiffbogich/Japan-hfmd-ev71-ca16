@@ -1,0 +1,16 @@
+{
+  "name": "vaccination",
+  "description": "vaccination",
+  "id": "slice",
+  "H": 40,
+  "par": [
+    "p:all"
+  ],
+  "cmd": [
+    {
+      "comment": "Get the initial conditions (no forcing)",
+      "fit": "-D -S e:guess:all:0.0",
+      "algorithm": "simul ode -T 100000 -D 5000 --traj"
+    }
+  ]
+}

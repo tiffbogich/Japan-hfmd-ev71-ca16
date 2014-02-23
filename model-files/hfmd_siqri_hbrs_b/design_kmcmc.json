@@ -1,0 +1,13 @@
+{
+  "name": "kmcmc",
+  "description": "kmcmc full update",
+  "id": "replicate",
+  "H": 5,
+  "seed": "it will converge",
+  "cmd": [
+    {
+      "pipe": "-u 0.01",
+      "algorithm": "kmcmc -M 500000 --full --no_dem_sto --acc --quiet"
+    }
+  ]
+}

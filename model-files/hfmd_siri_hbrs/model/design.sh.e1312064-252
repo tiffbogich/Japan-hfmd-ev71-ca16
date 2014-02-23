@@ -1,0 +1,7 @@
+[93mWARNING[0m: sanitized e:all:min 0 (guess) -> 0.001 (min)
+[93mWARNING[0m: sanitized IS:all:min 1.6179571179438754 (guess) -> 3 (min)
+[93mWARNING[0m: sanitized rep:CA16_JAP__IASR__inc:guess (logit) 1.8858344115955867 -> 1
+
+[94mINFO[0m: unsticked IS:all (3->3.06)
+[94mINFO[0m: unsticked rep:CA16_JAP__IASR__inc (1->0.9905)
+[94mINFO[0m: unsticked IS:all (3->3.06)
